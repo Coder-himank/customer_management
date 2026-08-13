@@ -1,0 +1,251 @@
+.customerDashboard {
+    width: 100%;
+    padding: 25px;
+    background: #f7f8f7;
+    border-radius: 20px;
+    font-family: Poppins, sans-serif;
+}
+
+/* PROFILE */
+
+.profile {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    padding: 25px;
+    background: white;
+    border-radius: 18px;
+    border: 1px solid #eeeeee;
+}
+
+.avatar {
+    width: 70px;
+    height: 70px;
+    overflow: hidden;
+    border-radius: 50%;
+    border: 3px solid #136132;
+}
+
+.avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.profileInfo {
+    flex: 1;
+}
+
+.profileInfo h1 {
+    margin: 0;
+    font-size: 22px;
+    color: #181818;
+}
+
+.profileInfo p {
+    margin: 5px 0 0;
+    font-size: 12px;
+    color: #888;
+}
+
+.customerBadge {
+    padding: 7px 13px;
+    border-radius: 20px;
+    background: #eaf5ed;
+    color: #136132;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+
+/* STATS */
+
+.stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-top: 15px;
+}
+
+.statCard {
+    padding: 20px;
+    background: white;
+    border: 1px solid #eeeeee;
+    border-radius: 15px;
+}
+
+.statCard span,
+.statCard small {
+    display: block;
+    color: #999;
+    font-size: 11px;
+}
+
+.statCard strong {
+    display: block;
+    margin: 7px 0;
+    font-size: 22px;
+    color: #171717;
+}
+
+
+/* COMPARISON */
+
+.comparison {
+    margin-top: 15px;
+    padding: 25px;
+    background: white;
+    border-radius: 18px;
+    border: 1px solid #eeeeee;
+}
+
+.comparisonHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.comparisonHeader span {
+    font-size: 11px;
+    color: #999;
+}
+
+.comparisonHeader h2 {
+    margin: 4px 0;
+    font-size: 18px;
+}
+
+.rank {
+    font-size: 30px;
+    font-weight: 600;
+    color: #136132;
+}
+
+.rank small {
+    font-size: 11px;
+    color: #999;
+}
+
+.progress {
+    height: 9px;
+    margin: 20px 0;
+    border-radius: 20px;
+    background: #eeeeee;
+    overflow: hidden;
+}
+
+.progressFill {
+    height: 100%;
+    border-radius: inherit;
+    background: #136132;
+}
+
+.comparisonValues {
+    display: flex;
+    justify-content: space-between;
+}
+
+.comparisonValues span {
+    display: block;
+    font-size: 10px;
+    color: #999;
+}
+
+.comparisonValues strong {
+    font-size: 14px;
+}
+
+
+/* PRODUCTS */
+
+.productSection,
+.history {
+    margin-top: 15px;
+    padding: 25px;
+    background: white;
+    border-radius: 18px;
+    border: 1px solid #eeeeee;
+}
+
+.sectionHeader h2,
+.history h2 {
+    margin: 4px 0 20px;
+    font-size: 18px;
+}
+
+.sectionHeader span {
+    color: #999;
+    font-size: 11px;
+}
+
+.productRow {
+    display: grid;
+    grid-template-columns: 180px 1fr 100px;
+    gap: 20px;
+    align-items: center;
+    padding: 14px 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.productName strong {
+    display: block;
+    font-size: 13px;
+}
+
+.productName span {
+    font-size: 10px;
+    color: #999;
+}
+
+.productBar {
+    height: 7px;
+    background: #eeeeee;
+    border-radius: 20px;
+    overflow: hidden;
+}
+
+.productBar div {
+    height: 100%;
+    background: #136132;
+    border-radius: inherit;
+}
+
+.quantity {
+    text-align: right;
+    font-size: 12px;
+}
+
+
+/* HISTORY */
+
+.orderRow {
+    display: grid;
+    grid-template-columns: 1fr 150px 120px;
+    align-items: center;
+    padding: 14px 0;
+    border-bottom: 1px solid #f1f1f1;
+}
+
+.orderRow div strong,
+.orderRow div span {
+    display: block;
+}
+
+.orderRow div strong {
+    font-size: 13px;
+}
+
+.orderRow div span {
+    margin-top: 3px;
+    color: #999;
+    font-size: 10px;
+}
+
+.orderRow > span {
+    font-size: 12px;
+}
+
+.orderRow > strong {
+    text-align: right;
+    font-size: 13px;
+}
