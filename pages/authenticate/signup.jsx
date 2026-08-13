@@ -85,6 +85,7 @@ const Signup = () => {
                     <input type="password" id="confirmPassword" value={credentials.confirmPassword} onChange={(e) => setCredentials({ ...credentials, confirmPassword: e.target.value })} />
                 </div>
                 <button type="submit" onClick={handleSubmit} className={styles.submitButton} disabled={loading}>Signup</button>
+                <Link href="/authenticate/login">alredy have a account: login</Link>
             </form>
         </div>
     );

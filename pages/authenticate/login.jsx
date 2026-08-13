@@ -63,6 +63,8 @@ const Login = () => {
                     <input type="password" id="password" value={credentials.password} onChange={(e) => setCredentials({ ...credentials, password: e.target.value })} />
                 </div>
                 <button type="submit" onClick={handleSubmit} className={styles.submitButton} disabled={loading}>Signup</button>
+
+                <Link href="/authenticate/signup">Create new Account: signup</Link>
             </form>
         </div>
     );

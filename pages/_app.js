@@ -10,7 +10,7 @@ export default function App({
 
     const router = useRouter();
 
-    const showHeader = router.pathname !== "/";
+    const showHeader = !router.pathname in ["/", "/authenticate/login", "/authenticate/signup"];
 
     return (
         <SessionProvider session={session}>
