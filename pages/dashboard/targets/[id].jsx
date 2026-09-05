@@ -137,7 +137,7 @@ export default function TargetDetails() {
             {/* BACK */}
 
             <Link
-                href="/targets"
+                href="/dashboard/targets"
                 className={styles.back}
             >
                 ← Back to Targets

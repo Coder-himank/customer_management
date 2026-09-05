@@ -81,6 +81,12 @@ export default async function handler(req, res) {
                 )
                 .lean();
 
+        console.log(
+            "Purchases for target:",
+            purchaseFilter,
+            purchases
+        );
+
         /*
          * Group purchases by customer.
          */
