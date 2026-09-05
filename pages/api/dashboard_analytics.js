@@ -5,7 +5,17 @@ import Customer from "@/server/models/customer";
 import Purchase from "@/server/models/Purchases";
 import Gift from "@/server/models/Gifts";
 
+import { requireAuth } from "@/lib/auth";
+
 export default async function handler(req, res) {
+
+    const auth = await requireAuth(req, res);
+
+    if (!auth.authenticated) {
+        return res.status(401).json({
+            error: "Authentication required",
+        });
+    }
 
     if (req.method !== "GET") {
         return res.status(405).json({

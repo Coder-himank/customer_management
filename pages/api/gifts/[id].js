@@ -3,7 +3,17 @@ import Gift from "@/server/models/Gifts";
 import Customer from "@/server/models/customer";
 import Target from "@/server/models/Targets";
 
+import { requireAuth } from "@/lib/auth";
+
 export default async function handler(req, res) {
+
+    const auth = await requireAuth(req, res);
+
+    if (!auth.authenticated) {
+        return res.status(401).json({
+            error: "Authentication required",
+        });
+    }
   await connectDB();
 
   const { id } = req.query;
@@ -15,21 +25,6 @@ export default async function handler(req, res) {
       return res.status(404).json({
         success: false,
         message: "Gift not found",
-      });
-    }
-
-    if (req.method === "GET") {
-      const populatedGift = await Gift.findById(id)
-        .populate("customerId", "name phone companyName status")
-        .populate(
-          "targetId",
-          "name targetType category productName targetQuantity unit startDate endDate status"
-        )
-        .lean();
-        
-      return res.status(200).json({
-        success: true,
-        data: populatedGift,
       });
     }
 

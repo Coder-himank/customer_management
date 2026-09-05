@@ -4,7 +4,17 @@ import Target from "@/server/models/Targets";
 import Purchase from "@/server/models/Purchases";
 import Gift from "@/server/models/Gifts";
 
+import { requireAuth } from "@/lib/auth";
+
 export default async function handler(req, res) {
+
+    const auth = await requireAuth(req, res);
+
+    if (!auth.authenticated) {
+        return res.status(401).json({
+            error: "Authentication required",
+        });
+    }
 
     await connectDB();
 

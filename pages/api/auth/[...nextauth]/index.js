@@ -5,89 +5,91 @@ import bcrypt from "bcryptjs";
 import { connectDB } from "@/lib/mongodb";
 import User from "@/server/models/User";
 
-export default NextAuth({
-  providers: [
-    CredentialsProvider({
-      name: "Credentials",
+export const authOptions = {
+    providers: [
+        CredentialsProvider({
+            name: "Credentials",
 
-      credentials: {
-        username: {
-          label: "Username",
-          type: "text",
-        },
+            credentials: {
+                username: {
+                    label: "Username",
+                    type: "text",
+                },
+                password: {
+                    label: "Password",
+                    type: "password",
+                },
+            },
 
-        password: {
-          label: "Password",
-          type: "password",
-        },
-      },
+            async authorize(credentials) {
+                if (
+                    !credentials?.username ||
+                    !credentials?.password
+                ) {
+                    return null;
+                }
 
-      async authorize(credentials) {
-        if (
-          !credentials?.username ||
-          !credentials?.password
-        ) {
-          return null;
-        }
+                await connectDB();
 
-        await connectDB();
+                const username =
+                    credentials.username.trim().toLowerCase();
 
-        const username = credentials.username
-          .trim()
-          .toLowerCase();
+                const user = await User.findOne({
+                    username,
+                });
 
-        const user = await User.findOne({
-          username,
-        });
+                if (!user) {
+                    return null;
+                }
 
-        if (!user) {
-          return null;
-        }
+                const passwordMatch =
+                    await bcrypt.compare(
+                        credentials.password,
+                        user.password
+                    );
 
-        const passwordMatch = await bcrypt.compare(
-          credentials.password,
-          user.password
-        );
+                if (!passwordMatch) {
+                    return null;
+                }
 
-        if (!passwordMatch) {
-          return null;
-        }
+                return {
+                    id: user._id.toString(),
+                    username: user.username,
+                };
+            },
+        }),
+    ],
 
-        return {
-          id: user._id.toString(),
-          username: user.username,
-        };
-      },
-    }),
-  ],
-
-  session: {
-    strategy: "jwt",
-  },
-
-  callbacks: {
-    async jwt({ token, user }) {
-      if (user) {
-        token.id = user.id;
-        token.username = user.username;
-      }
-
-      return token;
+    session: {
+        strategy: "jwt",
+        maxAge: 30 * 24 * 60 * 60,
     },
 
-    async session({ session, token }) {
-      if (session.user) {
-        session.user.id = token.id;
-        session.user.username = token.username;
-      }
+    callbacks: {
+        async jwt({ token, user }) {
+            if (user) {
+                token.id = user.id;
+                token.username = user.username;
+            }
 
-      return session;
+            return token;
+        },
+
+        async session({ session, token }) {
+            if (session.user) {
+                session.user.id = token.id;
+                session.user.username = token.username;
+            }
+
+            return session;
+        },
     },
-  },
 
-  pages: {
-    signIn: "/authenticate/login",
-  },
+    pages: {
+        signIn: "/authenticate/login",
+    },
 
-  secret: process.env.AUTH_SECRET,
-});
+    secret: process.env.NEXTAUTH_SECRET,
+};
+
+export default NextAuth(authOptions);

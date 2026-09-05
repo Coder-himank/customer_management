@@ -9,7 +9,6 @@ import axios from "axios";
 
 export const dashboard = () => {
 
-    const { data: session } = useSession();
 
     const router = useRouter();
 
@@ -27,16 +26,6 @@ export const dashboard = () => {
     /* =========================
        FETCH CUSTOMERS
     ========================= */
-    useEffect(() => {
-        if (!session) {
-
-            setTimeout(() => {
-                if (!session) {
-                    router.push("/authenticate/login");
-                }
-            }, 3000);
-        }
-    }, [session]);
 
     useEffect(() => {
 
@@ -816,7 +805,7 @@ export const dashboard = () => {
                             or filter.
                         </p>
 
-                        <Link href={"/newCustomer"}>+Add Customers</Link>
+                        <Link href={"/customer/newCustomer"}>+Add Customers</Link>
 
                     </div>
 
