@@ -28,6 +28,25 @@ export default async function handler(req, res) {
       });
     }
 
+    if (req.method === "GET") {
+      const populatedGift = await Gift.findById(id)
+        .populate(
+          "customerId",
+          "name phone companyName status"
+        )
+        .populate(
+          "targetId",
+          "name targetType category productName targetQuantity unit startDate endDate status"
+        )
+        .lean();
+        
+      return res.status(200).json({
+        success: true,
+        data: populatedGift,
+      });
+    }
+      
+
     // =====================================================
     // UPDATE GIFT
     // =====================================================
