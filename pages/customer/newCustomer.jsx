@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import styles from "@/styles/customer/newCustomer.module.css";
+import styles from "@/styles/newCustomer.module.css";
 import axios from "axios";
 export default function CustomerDashboard() {
 
