@@ -6,6 +6,12 @@ import mongoose from "mongoose";
 
 const addressSchema = new mongoose.Schema(
     {
+        label: {
+            type: String,
+            trim: true,
+            default: "Home",
+        },
+
         address: {
             type: String,
             trim: true,
@@ -27,12 +33,19 @@ const addressSchema = new mongoose.Schema(
         country: {
             type: String,
             trim: true,
-            default: "INDIA",
+            default: "India",
         },
 
         pincode: {
             type: String,
             trim: true,
+            match: [/^[0-9]{6}$/, "Invalid pincode"],
+        },
+
+        landmark: {
+            type: String,
+            trim: true,
+            default: "",
         },
 
         isDefault: {
@@ -40,113 +53,9 @@ const addressSchema = new mongoose.Schema(
             default: false,
         },
     },
-    { _id: true }
-);
-
-
-/* =========================
-   PRODUCTS PURCHASED
-========================= */
-
-const purchaseSchema = new mongoose.Schema(
     {
-        productName: {
-            type: String,
-            required: true,
-            trim: true,
-        },
-
-        category: {
-            type: String,
-            required: true,
-            enum: [
-                "cement",
-                "iron_rod",
-                "iron_sheet",
-                "other",
-            ],
-        },
-
-        quantity: {
-            type: Number,
-            required: true,
-            min: 0,
-        },
-
-        unit: {
-            type: String,
-            required: true,
-            enum: [
-                "bag",
-                "ton",
-                "piece",
-            ],
-        },
-
-        // When this product was added/recorded
-        date: {
-            type: Date,
-            default: Date.now,
-        },
-
-        notes: {
-            type: String,
-            trim: true,
-            default: "",
-        },
-    },
-    { _id: true }
-);
-
-
-/* =========================
-   GIFTS
-========================= */
-
-const giftSchema = new mongoose.Schema(
-    {
-        name: {
-            type: String,
-            required: true,
-            trim: true,
-        },
-
-        quantity: {
-            type: Number,
-            default: 1,
-            min: 1,
-        },
-
-        images: {
-            type: [String],
-            default: [],
-        },
-
-        givenDate: {
-            type: Date,
-            default: Date.now,
-        },
-
-        occasion: {
-            type: String,
-            enum: [
-                "festival",
-                "birthday",
-                "loyalty",
-                "business",
-                "special",
-                "other",
-            ],
-            default: "business",
-        },
-
-        notes: {
-            type: String,
-            trim: true,
-            default: "",
-        },
-    },
-    { _id: true }
+        _id: true,
+    }
 );
 
 
@@ -156,67 +65,194 @@ const giftSchema = new mongoose.Schema(
 
 const CustomerSchema = new mongoose.Schema(
     {
+        /* =========================
+           BASIC INFORMATION
+        ========================= */
+
         image: {
             type: String,
             default: "/images/default-user.png",
+            trim: true,
         },
 
         name: {
             type: String,
             required: true,
             trim: true,
+            maxlength: 150,
         },
 
         phone: {
             type: String,
             required: true,
+            unique: true,
             trim: true,
+        },
+
+        alternatePhone: {
+            type: String,
+            trim: true,
+            default: "",
         },
 
         email: {
             type: String,
             trim: true,
             lowercase: true,
+            default: "",
         },
+
+
+        /* =========================
+           BUSINESS INFORMATION
+        ========================= */
+
+        customerType: {
+            type: String,
+            enum: [
+                "retail",
+                "contractor",
+                "builder",
+                "dealer",
+                "company",
+                "other",
+            ],
+            default: "retail",
+        },
+
+        companyName: {
+            type: String,
+            trim: true,
+            default: "",
+        },
+
+        gstNumber: {
+            type: String,
+            trim: true,
+            uppercase: true,
+            default: "",
+        },
+
+        panNumber: {
+            type: String,
+            trim: true,
+            uppercase: true,
+            default: "",
+        },
+
+
+        /* =========================
+           ADDRESSES
+        ========================= */
 
         addresses: {
             type: [addressSchema],
             default: [],
         },
 
+
         /* =========================
-           PURCHASED PRODUCTS
+           CUSTOMER STATUS
         ========================= */
 
-        purchases: {
-            type: [purchaseSchema],
-            default: [],
+        status: {
+            type: String,
+            enum: [
+                "active",
+                "inactive",
+                "blocked",
+            ],
+            default: "active",
         },
 
+
         /* =========================
-           GIFTS
+           CUSTOMER SEGMENT
+           
+           This should normally be
+           calculated by analytics.
         ========================= */
 
-        gifts: {
-            type: [giftSchema],
-            default: [],
+        segment: {
+            type: String,
+            enum: [
+                "new",
+                "regular",
+                "growing",
+                "high_value",
+                "vip",
+                "declining",
+                "inactive",
+            ],
+            default: "new",
         },
 
+
         /* =========================
-           EXTRA CUSTOMER INFORMATION
+           CUSTOMER NOTES
         ========================= */
 
         notes: {
             type: String,
             trim: true,
+            maxlength: 2000,
             default: "",
         },
+
+
+        /* =========================
+           IMPORTANT DATES
+        ========================= */
+
+        firstPurchaseDate: {
+            type: Date,
+            default: null,
+        },
+
+        lastPurchaseDate: {
+            type: Date,
+            default: null,
+        },
+
+        lastContactDate: {
+            type: Date,
+            default: null,
+        },
+
+
+        /* =========================
+           CUSTOMER METADATA
+        ========================= */
+
+        tags: {
+            type: [String],
+            default: [],
+        },
+
+        source: {
+            type: String,
+            enum: [
+                "walk_in",
+                "referral",
+                "existing_customer",
+                "phone",
+                "website",
+                "other",
+            ],
+            default: "other",
+        },
+
+
+        /* =========================
+           CREATED / UPDATED
+        ========================= */
 
         createdAt: {
             type: Date,
             default: Date.now,
         },
     },
+
     {
         timestamps: true,
     }
@@ -227,10 +263,48 @@ const CustomerSchema = new mongoose.Schema(
    INDEXES
 ========================= */
 
-CustomerSchema.index({ phone: 1 }, { unique: true });
-CustomerSchema.index({ name: 1 });
-CustomerSchema.index({ "addresses.city": 1 });
+// Phone lookup
+CustomerSchema.index(
+    { phone: 1 },
+    { unique: true }
+);
 
+// Customer search
+CustomerSchema.index({
+    name: 1,
+});
+
+// Location filtering
+CustomerSchema.index({
+    "addresses.city": 1,
+});
+
+CustomerSchema.index({
+    "addresses.state": 1,
+});
+
+// Business filtering
+CustomerSchema.index({
+    customerType: 1,
+});
+
+CustomerSchema.index({
+    status: 1,
+});
+
+CustomerSchema.index({
+    segment: 1,
+});
+
+// Useful for inactive-customer queries
+CustomerSchema.index({
+    lastPurchaseDate: 1,
+});
+
+
+/* =========================
+   MODEL
+========================= */
 
 export default mongoose.models.Customer ||
     mongoose.model("Customer", CustomerSchema);

@@ -1,0 +1,650 @@
+
+.page {
+    min-height: 100vh;
+    background: #f5f7f6;
+    color: #17251d;
+    padding-bottom: 60px;
+}
+
+
+/* =========================
+   HEADER
+========================= */
+
+.header {
+    background: #ffffff;
+    border-bottom: 1px solid #e4ebe6;
+    padding: 24px 6%;
+}
+
+.back {
+    border: none;
+    background: transparent;
+    color: #136132;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    padding: 0;
+    margin-bottom: 22px;
+}
+
+.headerContent {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.eyebrow {
+    display: block;
+    color: #136132;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+    margin-bottom: 8px;
+}
+
+.header h1 {
+    margin: 0;
+    font-size: 34px;
+    letter-spacing: -1px;
+}
+
+.header p {
+    margin: 9px 0 0;
+    color: #718078;
+    font-size: 14px;
+}
+
+.headerIcon {
+    width: 58px;
+    height: 58px;
+    border-radius: 16px;
+    background: #edf6f0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 27px;
+}
+
+
+/* =========================
+   CONTAINER
+========================= */
+
+.container {
+    width: min(1200px, 88%);
+    margin: 32px auto;
+}
+
+
+/* =========================
+   HERO
+========================= */
+
+.heroCard {
+    display: flex;
+    align-items: center;
+    gap: 22px;
+
+    background: #ffffff;
+    border: 1px solid #e4ebe6;
+    border-radius: 20px;
+
+    padding: 28px;
+
+    margin-bottom: 24px;
+
+    box-shadow:
+        0 12px 35px rgba(22, 48, 34, 0.06);
+}
+
+.productIcon {
+    width: 78px;
+    height: 78px;
+    flex-shrink: 0;
+
+    border-radius: 18px;
+
+    background: #edf6f0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 36px;
+}
+
+.heroInfo {
+    flex: 1;
+}
+
+.categoryBadge {
+    display: inline-flex;
+    padding: 6px 11px;
+
+    border-radius: 999px;
+
+    background: #edf6f0;
+    color: #136132;
+
+    font-size: 11px;
+    font-weight: 800;
+
+    margin-bottom: 9px;
+}
+
+.heroInfo h2 {
+    margin: 0;
+
+    font-size: 28px;
+    letter-spacing: -0.6px;
+}
+
+.heroInfo p {
+    margin: 8px 0 0;
+
+    color: #7b8780;
+    font-size: 13px;
+}
+
+.heroInfo p strong {
+    color: #293b31;
+}
+
+.heroAmount {
+    padding-left: 28px;
+    border-left: 1px solid #e3e9e5;
+
+    text-align: right;
+}
+
+.heroAmount span {
+    display: block;
+
+    color: #89938d;
+
+    font-size: 11px;
+    font-weight: 700;
+
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+
+    margin-bottom: 6px;
+}
+
+.heroAmount strong {
+    color: #136132;
+    font-size: 26px;
+}
+
+
+/* =========================
+   GRID
+========================= */
+
+.grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+
+    gap: 22px;
+}
+
+.card {
+    background: #ffffff;
+
+    border: 1px solid #e4ebe6;
+
+    border-radius: 18px;
+
+    padding: 24px;
+
+    box-shadow:
+        0 8px 25px rgba(22, 48, 34, 0.04);
+}
+
+.fullWidth {
+    grid-column: 1 / -1;
+}
+
+
+/* =========================
+   CARD HEADER
+========================= */
+
+.cardHeader {
+    display: flex;
+    align-items: center;
+
+    gap: 13px;
+
+    margin-bottom: 22px;
+}
+
+.cardIcon {
+    width: 42px;
+    height: 42px;
+
+    border-radius: 12px;
+
+    background: #edf6f0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 19px;
+}
+
+.cardHeader h3 {
+    margin: 0;
+
+    font-size: 17px;
+}
+
+.cardHeader p {
+    margin: 4px 0 0;
+
+    color: #87928c;
+
+    font-size: 12px;
+}
+
+
+/* =========================
+   INFO
+========================= */
+
+.infoList {
+    border-top: 1px solid #edf0ee;
+}
+
+.infoRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    gap: 20px;
+
+    padding: 13px 0;
+
+    border-bottom: 1px solid #edf0ee;
+}
+
+.infoRow span {
+    color: #87928c;
+    font-size: 12px;
+}
+
+.infoRow strong {
+    color: #25372d;
+    font-size: 13px;
+
+    text-align: right;
+
+    word-break: break-word;
+}
+
+.viewCustomer {
+    width: 100%;
+
+    margin-top: 17px;
+
+    border: 1px solid #cfe0d4;
+
+    background: #f7fbf8;
+
+    color: #136132;
+
+    border-radius: 9px;
+
+    padding: 11px;
+
+    font-size: 13px;
+    font-weight: 700;
+
+    cursor: pointer;
+
+    transition: 0.2s;
+}
+
+.viewCustomer:hover {
+    background: #edf6f0;
+}
+
+
+/* =========================
+   PRODUCT
+========================= */
+
+.productDetails {
+    background: #f8faf9;
+
+    border: 1px solid #e5ebe7;
+
+    border-radius: 12px;
+
+    padding: 17px;
+
+    margin-bottom: 15px;
+}
+
+.productName {
+    font-size: 17px;
+    font-weight: 750;
+
+    color: #173b25;
+}
+
+.productCategory {
+    margin-top: 5px;
+
+    color: #87928c;
+
+    font-size: 12px;
+}
+
+
+/* =========================
+   SUMMARY
+========================= */
+
+.summaryGrid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, minmax(0, 1fr));
+
+    gap: 14px;
+}
+
+.summaryBox {
+    background: #f8faf9;
+
+    border: 1px solid #e6ece8;
+
+    border-radius: 12px;
+
+    padding: 17px;
+}
+
+.summaryBox span {
+    display: block;
+
+    color: #87928c;
+
+    font-size: 11px;
+    font-weight: 700;
+
+    text-transform: uppercase;
+
+    letter-spacing: 0.5px;
+
+    margin-bottom: 8px;
+}
+
+.summaryBox strong {
+    color: #25372d;
+
+    font-size: 15px;
+
+    word-break: break-word;
+}
+
+.summaryBox.highlight {
+    background: #edf6f0;
+    border-color: #cfe0d4;
+}
+
+.summaryBox.highlight strong {
+    color: #136132;
+    font-size: 19px;
+}
+
+
+/* =========================
+   NOTES
+========================= */
+
+.notes {
+    background: #f8faf9;
+
+    border: 1px solid #e5ebe7;
+
+    border-radius: 12px;
+
+    padding: 18px;
+
+    color: #526159;
+
+    font-size: 14px;
+
+    line-height: 1.7;
+
+    white-space: pre-wrap;
+}
+
+
+/* =========================
+   RECORD
+========================= */
+
+.recordGrid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+
+    gap: 0 30px;
+}
+
+.recordGrid .infoRow {
+    display: block;
+}
+
+.recordGrid .infoRow strong {
+    display: block;
+
+    margin-top: 5px;
+
+    text-align: left;
+
+    font-size: 12px;
+
+    color: #59675f;
+}
+
+
+/* =========================
+   LOADING
+========================= */
+
+.loading {
+    min-height: 70vh;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    flex-direction: column;
+
+    gap: 14px;
+
+    color: #718078;
+}
+
+.spinner {
+    width: 34px;
+    height: 34px;
+
+    border: 3px solid #dce8df;
+
+    border-top-color: #136132;
+
+    border-radius: 50%;
+
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+
+/* =========================
+   ERROR
+========================= */
+
+.errorCard {
+    width: min(500px, 90%);
+
+    margin: 100px auto;
+
+    background: #ffffff;
+
+    border: 1px solid #e5ebe7;
+
+    border-radius: 18px;
+
+    padding: 40px;
+
+    text-align: center;
+}
+
+.errorIcon {
+    width: 50px;
+    height: 50px;
+
+    margin: 0 auto 15px;
+
+    border-radius: 50%;
+
+    background: #fff1f1;
+
+    color: #c53c3c;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 24px;
+    font-weight: 800;
+}
+
+.errorCard h2 {
+    margin: 0 0 8px;
+}
+
+.errorCard p {
+    color: #77837c;
+
+    font-size: 14px;
+
+    margin-bottom: 22px;
+}
+
+.backButton {
+    border: none;
+
+    background: #136132;
+
+    color: white;
+
+    padding: 11px 18px;
+
+    border-radius: 9px;
+
+    font-weight: 700;
+
+    cursor: pointer;
+}
+
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media (max-width: 800px) {
+
+    .header {
+        padding: 20px 5%;
+    }
+
+    .header h1 {
+        font-size: 28px;
+    }
+
+    .container {
+        width: 92%;
+    }
+
+    .heroCard {
+        align-items: flex-start;
+        flex-wrap: wrap;
+    }
+
+    .heroAmount {
+        width: 100%;
+
+        border-left: none;
+        border-top: 1px solid #e3e9e5;
+
+        padding-left: 0;
+        padding-top: 18px;
+
+        text-align: left;
+    }
+
+    .grid {
+        grid-template-columns: 1fr;
+    }
+
+    .fullWidth {
+        grid-column: auto;
+    }
+
+    .summaryGrid {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+
+@media (max-width: 500px) {
+
+    .heroCard {
+        padding: 20px;
+    }
+
+    .card {
+        padding: 18px;
+    }
+
+    .productIcon {
+        width: 62px;
+        height: 62px;
+
+        font-size: 28px;
+    }
+
+    .heroInfo h2 {
+        font-size: 23px;
+    }
+
+    .summaryGrid {
+        grid-template-columns: 1fr;
+    }
+
+    .recordGrid {
+        grid-template-columns: 1fr;
+    }
+
+    .headerIcon {
+        display: none;
+    }
+}
+
+

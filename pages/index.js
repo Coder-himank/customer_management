@@ -1,7 +1,17 @@
 import Link from "next/link";
 import styles from "@/styles/Home.module.css";
-
+import { useSession } from "next-auth/react";
+import { useEffect } from "react";
 export default function Home() {
+
+    const {data : session} = useSession();  
+
+    useEffect(() => {
+        if (session) {
+            // Redirect to dashboard if user is logged in
+            window.location.href = "/dashboard";
+        }
+    }, [session]);
     return (
         <div className={styles.page}>
 

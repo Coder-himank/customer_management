@@ -45,8 +45,18 @@ export default function Header() {
                         Add Customer
                     </Link>
 
-                    <Link href="/gifts">
+                    <Link
+                        href="/dashboard/purchases"
+                        onClick={closeMenu}
+                    >
+                        Purchases
+                    </Link>
+
+                    <Link href="/dashboard/gifts">
                         Gifts
+                    </Link>
+                    <Link href="/dashboard/targets">
+                        Targets
                     </Link>
 
                 </nav>
@@ -94,10 +104,22 @@ export default function Header() {
                     </Link>
 
                     <Link
-                        href="/gifts"
+                        href="/dashboard/purchases"
+                        onClick={closeMenu}
+                    >
+                        Purchases
+                    </Link>
+                    <Link
+                        href="/dashboard/gifts"
                         onClick={closeMenu}
                     >
                         Gifts
+                    </Link>
+                    <Link
+                        href="/dashboard/targets"
+                        onClick={closeMenu}
+                    >
+                        Targets
                     </Link>
 
                 </div>

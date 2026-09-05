@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import axios from 'axios';
+import Link from 'next/link';
 // import { signup } from '../../api/auth';
 
 import styles from "@/styles/auth.module.css"

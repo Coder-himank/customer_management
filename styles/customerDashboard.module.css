@@ -224,6 +224,7 @@
     align-items: center;
     padding: 14px 0;
     border-bottom: 1px solid #f1f1f1;
+    text-decoration: none;
 }
 
 .orderRow div strong,
@@ -232,7 +233,8 @@
 }
 
 .orderRow div strong {
-    font-size: 13px;
+    font-size: 1rem;
+    color: #171717;
 }
 
 .orderRow div span {

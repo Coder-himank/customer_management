@@ -9,8 +9,13 @@ export default function App({
 }) {
 
     const router = useRouter();
+    const hideHeader = [
+        "/",
+        "/authenticate/login",
+        "/authenticate/signup",
+    ].includes(router.pathname);
 
-    const showHeader = !router.pathname in ["/", "/authenticate/login", "/authenticate/signup"];
+    const showHeader = !hideHeader;
 
     return (
         <SessionProvider session={session}>

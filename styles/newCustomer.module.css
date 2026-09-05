@@ -74,7 +74,7 @@
     margin: auto;
 
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr;
     gap: 20px;
 
     align-items: start;
@@ -202,6 +202,7 @@
     border-radius: 13px;
 
     background: #f8faf8;
+    flex-wrap: wrap;
 }
 
 .avatar {
@@ -494,7 +495,197 @@
     font-size: 9px;
 }
 
+.avatarSection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
 
+.avatar {
+  width: 110px;
+  height: 110px;
+
+  border-radius: 50%;
+  overflow: hidden;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: #edf5ef;
+  color: #136132;
+
+  font-size: 38px;
+  font-weight: 700;
+
+  border: 3px solid #e0ebe3;
+}
+
+.avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.imageActions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.imageButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 9px 14px;
+
+  border: 1px solid #d6dfd9;
+  border-radius: 8px;
+
+  background: white;
+  color: #136132;
+
+  font-size: 13px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition: 0.2s ease;
+}
+
+.imageButton:hover {
+  background: #f1f7f3;
+  border-color: #136132;
+}
+
+.cameraOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 20px;
+
+  background: rgba(0, 0, 0, 0.75);
+}
+
+.cameraModal {
+  width: 100%;
+  max-width: 700px;
+
+  background: white;
+
+  border-radius: 18px;
+
+  overflow: hidden;
+
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.35);
+}
+
+.cameraHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding: 18px 22px;
+
+  border-bottom: 1px solid #e5e9e7;
+}
+
+.cameraHeader h2 {
+  margin: 0;
+
+  font-size: 20px;
+}
+
+.videoContainer {
+  width: 100%;
+
+  background: #000;
+
+  aspect-ratio: 16 / 10;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cameraVideo {
+  width: 100%;
+  height: 100%;
+
+  object-fit: cover;
+}
+
+.cameraActions {
+  display: flex;
+  justify-content: flex-end;
+
+  gap: 10px;
+
+  padding: 18px;
+}
+
+.captureButton {
+  border: none;
+
+  padding: 12px 20px;
+
+  border-radius: 9px;
+
+  background: #136132;
+  color: white;
+
+  font-weight: 650;
+
+  cursor: pointer;
+}
+
+.captureButton:hover {
+  background: #0e4d27;
+}
+
+
+.formActions {
+  display: flex;
+
+  justify-content: flex-end;
+
+  gap: 10px;
+
+  margin-top: 25px;
+
+  padding-top: 20px;
+
+  border-top: 1px solid #edf0ee;
+}
+
+.cancelButton {
+  border: 1px solid #d8dfda;
+
+  border-radius: 9px;
+
+  padding: 11px 18px;
+
+  background: white;
+
+  color: #4f5953;
+
+  font-size: 14px;
+  font-weight: 600;
+
+  cursor: pointer;
+}
+
+.cancelButton:hover {
+  background: #f5f7f6;
+}
 /* =========================
    RESPONSIVE
 ========================= */
@@ -547,8 +738,5 @@
         grid-template-columns: 1fr 85px;
     }
 
-    .avatarSection {
-        align-items: flex-start;
-    }
 
 }

@@ -1,0 +1,306 @@
+.page {
+    min-height: 100vh;
+    padding: 40px;
+    background: #f6f7f4;
+    color: #172019;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 30px;
+    margin-bottom: 35px;
+}
+
+.eyebrow {
+    font-size: 11px;
+    letter-spacing: 2px;
+    font-weight: 700;
+    color: #136132;
+    margin-bottom: 10px;
+}
+
+.header h1 {
+    font-size: 38px;
+    margin: 0;
+    letter-spacing: -1.5px;
+}
+
+.header p {
+    margin: 10px 0 0;
+    color: #69736b;
+    max-width: 600px;
+}
+
+.createButton {
+    border: 0;
+    background: #136132;
+    color: white;
+    padding: 14px 22px;
+    border-radius: 10px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.kpiGrid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 15px;
+    margin-bottom: 35px;
+}
+
+.kpiCard {
+    background: white;
+    border: 1px solid #e5e9e4;
+    border-radius: 16px;
+    padding: 22px;
+}
+
+.kpiLabel {
+    display: block;
+    font-size: 10px;
+    letter-spacing: 1.2px;
+    font-weight: 700;
+    color: #89918a;
+}
+
+.kpiCard strong {
+    display: block;
+    font-size: 28px;
+    margin: 12px 0 5px;
+}
+
+.kpiCard small {
+    color: #89918a;
+}
+
+.toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.toolbar h2 {
+    margin: 0;
+}
+
+.toolbar span {
+    color: #89918a;
+    font-size: 13px;
+}
+
+.filters {
+    display: flex;
+    gap: 6px;
+}
+
+.filters button {
+    border: 1px solid #e0e4df;
+    background: white;
+    padding: 9px 15px;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.filters .activeFilter {
+    background: #136132;
+    color: white;
+    border-color: #136132;
+}
+
+.targetGrid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+}
+
+.targetCard {
+    background: white;
+    border: 1px solid #e5e9e4;
+    border-radius: 18px;
+    padding: 24px;
+    text-decoration: none;
+    color: inherit;
+    transition: 0.2s;
+}
+
+.targetCard:hover {
+    transform: translateY(-3px);
+    border-color: #136132;
+    box-shadow: 0 12px 35px rgba(20, 50, 30, 0.08);
+}
+
+.cardTop {
+    display: flex;
+    justify-content: space-between;
+}
+
+.cardTop h3 {
+    margin: 10px 0;
+    font-size: 20px;
+}
+
+.status {
+    display: inline-block;
+    padding: 5px 9px;
+    border-radius: 20px;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.active {
+    background: #e5f4e9;
+    color: #136132;
+}
+
+.completed {
+    background: #e7f0fa;
+    color: #245b91;
+}
+
+.draft {
+    background: #f1f1f1;
+    color: #777;
+}
+
+.expired {
+    background: #faeaea;
+    color: #a33;
+}
+
+.arrow {
+    font-size: 22px;
+}
+
+.productInfo,
+.dates {
+    display: flex;
+    justify-content: space-between;
+    color: #69736b;
+    font-size: 13px;
+    margin: 15px 0;
+}
+
+.dates {
+    justify-content: flex-start;
+    gap: 10px;
+    font-size: 12px;
+}
+
+.progressHeader {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+    font-size: 12px;
+}
+
+.progressBar {
+    height: 7px;
+    background: #edf0ed;
+    border-radius: 10px;
+    overflow: hidden;
+    margin-top: 8px;
+}
+
+.progressBar div {
+    height: 100%;
+    background: #136132;
+    border-radius: inherit;
+}
+
+.stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    border-top: 1px solid #edf0ed;
+    border-bottom: 1px solid #edf0ed;
+    margin: 20px 0;
+    padding: 16px 0;
+}
+
+.stats div {
+    text-align: center;
+}
+
+.stats strong,
+.stats span {
+    display: block;
+}
+
+.stats strong {
+    font-size: 17px;
+}
+
+.stats span {
+    font-size: 10px;
+    color: #89918a;
+    margin-top: 4px;
+}
+
+.sales {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+}
+
+.sales span {
+    color: #89918a;
+}
+
+.sales strong {
+    color: #136132;
+}
+
+.loading,
+.empty {
+    padding: 100px 20px;
+    text-align: center;
+    color: #69736b;
+}
+
+.empty div {
+    font-size: 40px;
+}
+
+.empty h3 {
+    color: #172019;
+}
+
+@media (max-width: 1100px) {
+    .kpiGrid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .targetGrid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 700px) {
+    .page {
+        padding: 20px;
+    }
+
+    .header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .kpiGrid,
+    .targetGrid {
+        grid-template-columns: 1fr;
+    }
+
+    .toolbar {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+
+    .filters {
+        overflow-x: auto;
+        width: 100%;
+    }
+}

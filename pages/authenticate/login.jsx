@@ -5,6 +5,7 @@ import styles from "@/styles/auth.module.css"
 
 import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 const Login = () => {
 
     const [credentials, setCredentials] = useState({

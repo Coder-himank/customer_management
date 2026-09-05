@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import styles from "@/styles/newCustomer.module.css";
-
+import axios from "axios";
 export default function CustomerDashboard() {
 
     const [loading, setLoading] = useState(false);
@@ -18,11 +18,17 @@ export default function CustomerDashboard() {
         pincode: "",
 
         notes: "",
-
-        purchases: [],
-
-        gifts: [],
     });
+
+
+    const [showCamera, setShowCamera] = useState(false);
+    const [cameraStream, setCameraStream] = useState(null);
+    const [cameraLoading, setCameraLoading] = useState(false);
+
+    const [photoFile, setPhotoFile] = useState(null);
+    const [photoPreview, setPhotoPreview] = useState("");
+
+    const videoRef = useRef(null);
 
 
     /* =========================
@@ -101,73 +107,57 @@ export default function CustomerDashboard() {
 
 
     /* =========================
-       GIFTS
-    ========================= */
-
-    const addGift = () => {
-
-        setForm((prev) => ({
-            ...prev,
-
-            gifts: [
-                ...prev.gifts,
-
-                {
-                    name: "",
-                    quantity: 1,
-                    images: [],
-                    occasion: "business",
-                    notes: "",
-                },
-            ],
-        }));
-
-    };
-
-
-    const updateGift = (index, field, value) => {
-
-        setForm((prev) => {
-
-            const gifts = [...prev.gifts];
-
-            gifts[index] = {
-                ...gifts[index],
-                [field]: value,
-            };
-
-            return {
-                ...prev,
-                gifts,
-            };
-
-        });
-
-    };
-
-
-    const removeGift = (index) => {
-
-        setForm((prev) => ({
-            ...prev,
-
-            gifts: prev.gifts.filter(
-                (_, i) => i !== index
-            ),
-        }));
-
-    };
-
-
-    /* =========================
        SUBMIT
     ========================= */
 
-    const handleSubmit = async (e) => {
+    const uploadPhoto = async () => {
+        if (!photoFile) {
+            return form.image || "";
+        }
 
+        const formData = new FormData();
+
+        formData.append("file", photoFile);
+        formData.append(
+            "folder",
+            "tradeintel/customers"
+        );
+
+        try {
+            const response = await axios.post(
+                "/api/files/upload",
+                formData
+            );
+
+            const uploadedUrl =
+                response.data?.data?.url ||
+                response.data?.url ||
+                "";
+
+            if (!uploadedUrl) {
+                throw new Error(
+                    "Upload URL was not returned."
+                );
+            }
+
+            return uploadedUrl;
+
+        } catch (error) {
+            console.error(
+                "Photo upload failed:",
+                error
+            );
+
+            throw new Error(
+                error.response?.data?.error ||
+                "Failed to upload photo"
+            );
+        }
+    };
+    const handleSubmit = async (e) => {
         e.preventDefault();
 
-        if (!form.name || !form.phone) {
+        if (!form.name.trim() || !form.phone.trim()) {
             alert("Name and phone are required");
             return;
         }
@@ -176,15 +166,17 @@ export default function CustomerDashboard() {
 
         try {
 
-            const payload = {
+            // Upload customer image first
+            const imageUrl = await uploadPhoto();
 
+            const payload = {
                 name: form.name.trim(),
 
                 phone: form.phone.trim(),
 
                 email: form.email.trim(),
 
-                image: form.image.trim(),
+                image: imageUrl,
 
                 addresses: [
                     {
@@ -197,29 +189,9 @@ export default function CustomerDashboard() {
                     },
                 ],
 
-                purchases: form.purchases
-                    .filter(
-                        (item) =>
-                            item.productName &&
-                            item.quantity
-                    )
-                    .map((item) => ({
-                        ...item,
-                        quantity: Number(item.quantity),
-                    })),
-
-                gifts: form.gifts
-                    .filter((gift) => gift.name)
-                    .map((gift) => ({
-                        ...gift,
-                        quantity: Number(gift.quantity),
-                    })),
 
                 notes: form.notes.trim(),
             };
-
-            console.log(payload);
-
 
             const response = await fetch(
                 "/api/customers",
@@ -227,27 +199,26 @@ export default function CustomerDashboard() {
                     method: "POST",
 
                     headers: {
-                        "Content-Type": "application/json",
+                        "Content-Type":
+                            "application/json",
                     },
 
                     body: JSON.stringify(payload),
                 }
             );
 
-
             const data = await response.json();
-
 
             if (!response.ok) {
                 throw new Error(
-                    data.error || "Unable to create customer"
+                    data.error ||
+                    "Unable to create customer"
                 );
             }
 
-
             alert("Customer created successfully");
 
-
+            // Reset
             setForm({
                 name: "",
                 phone: "",
@@ -261,25 +232,158 @@ export default function CustomerDashboard() {
                 pincode: "",
 
                 notes: "",
-
-                purchases: [],
-                gifts: [],
             });
 
+            setPhotoFile(null);
+            setPhotoPreview("");
 
         } catch (error) {
 
             console.error(error);
-
             alert(error.message);
 
         } finally {
 
             setLoading(false);
+        }
+    };
+    const handleImageChange = (e) => {
+        const file = e.target.files?.[0];
 
+        if (!file) return;
+
+        if (!file.type.startsWith("image/")) {
+            alert("Please select an image.");
+            return;
         }
 
+        if (file.size > 10 * 1024 * 1024) {
+            alert("Image must be less than 10MB.");
+            return;
+        }
+
+        // Store the actual File
+        setPhotoFile(file);
+
+        // Create preview
+        const previewUrl = URL.createObjectURL(file);
+        setPhotoPreview(previewUrl);
     };
+
+    const openCamera = async () => {
+        try {
+            setCameraLoading(true);
+
+            if (!navigator.mediaDevices?.getUserMedia) {
+                alert(
+                    "Your browser does not support camera access."
+                );
+                return;
+            }
+
+            const stream =
+                await navigator.mediaDevices.getUserMedia({
+                    video: {
+                        facingMode: "environment",
+                    },
+                    audio: false,
+                });
+
+            setCameraStream(stream);
+            setShowCamera(true);
+
+            // Wait until video element exists
+            setTimeout(() => {
+                if (videoRef.current) {
+                    videoRef.current.srcObject = stream;
+                    videoRef.current.play();
+                }
+            }, 100);
+
+        } catch (error) {
+            console.error("Camera error:", error);
+
+            if (error.name === "NotAllowedError") {
+                alert(
+                    "Camera permission was denied. Please allow camera access in your browser."
+                );
+            } else if (error.name === "NotFoundError") {
+                alert(
+                    "No camera was found on this device."
+                );
+            } else {
+                alert(
+                    "Unable to access the camera."
+                );
+            }
+        } finally {
+            setCameraLoading(false);
+        }
+    };
+    const capturePhoto = () => {
+        const video = videoRef.current;
+
+        if (!video || !video.videoWidth || !video.videoHeight) {
+            alert("Camera is not ready yet.");
+            return;
+        }
+
+        const canvas = document.createElement("canvas");
+
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+
+        const context = canvas.getContext("2d");
+
+        context.drawImage(
+            video,
+            0,
+            0,
+            canvas.width,
+            canvas.height
+        );
+
+        canvas.toBlob(
+            (blob) => {
+                if (!blob) {
+                    alert("Failed to capture photo.");
+                    return;
+                }
+
+                const file = new File(
+                    [blob],
+                    `customer-${Date.now()}.jpg`,
+                    {
+                        type: "image/jpeg",
+                    }
+                );
+
+                // Store actual file
+                setPhotoFile(file);
+
+                // Preview
+                const previewUrl = URL.createObjectURL(file);
+                setPhotoPreview(previewUrl);
+
+                // Close camera
+                closeCamera();
+            },
+            "image/jpeg",
+            0.9
+        );
+    };
+
+    const closeCamera = () => {
+        if (cameraStream) {
+            cameraStream
+                .getTracks()
+                .forEach((track) => track.stop());
+        }
+
+        setCameraStream(null);
+        setShowCamera(false);
+    };
+
 
 
     return (
@@ -349,46 +453,48 @@ export default function CustomerDashboard() {
 
                         </div>
 
-
                         <div className={styles.avatarSection}>
 
                             <div className={styles.avatar}>
 
-                                {form.image ? (
+                                {photoPreview ? (
                                     <img
-                                        src={form.image}
-                                        alt=""
+                                        src={photoPreview}
+                                        alt="Customer Avatar"
                                     />
                                 ) : (
                                     <span>
                                         {form.name
-                                            ? form.name
-                                                .charAt(0)
-                                                .toUpperCase()
+                                            ? form.name.charAt(0).toUpperCase()
                                             : "?"}
                                     </span>
                                 )}
 
                             </div>
 
-                            <div>
+                            <div className={styles.imageActions}>
 
-                                <strong>
-                                    Customer Photo
-                                </strong>
+                                <button
+                                    type="button"
+                                    className={styles.imageButton}
+                                    onClick={openCamera}
+                                    disabled={cameraLoading}
+                                >
+                                    {cameraLoading
+                                        ? "Opening Camera..."
+                                        : "📷 Open Camera"}
+                                </button>
 
-                                <p>
-                                    Add an image URL for
-                                    identification.
-                                </p>
+                                <label className={styles.imageButton}>
+                                    🖼️ Select Image
 
-                                <input
-                                    className={styles.input}
-                                    name="image"
-                                    value={form.image}
-                                    onChange={handleChange}
-                                    placeholder="https://..."
-                                />
+                                    <input
+                                        type="file"
+                                        accept="image/*"
+                                        hidden
+                                        onChange={handleImageChange}
+                                    />
+                                </label>
 
                             </div>
 
@@ -539,416 +645,6 @@ export default function CustomerDashboard() {
 
                     </section>
 
-                </div>
-
-
-                {/* =========================
-                    RIGHT COLUMN
-                ========================= */}
-
-                <div className={styles.rightColumn}>
-
-                    {/* PURCHASES */}
-
-                    <section className={styles.card}>
-
-                        <div className={styles.cardHeader}>
-
-                            <div className={styles.icon}>
-                                📦
-                            </div>
-
-                            <div className={styles.flexHeader}>
-
-                                <div>
-
-                                    <h2>
-                                        Products Purchased
-                                    </h2>
-
-                                    <p>
-                                        Record cumulative purchases
-                                    </p>
-
-                                </div>
-
-                                <button
-                                    type="button"
-                                    className={styles.addButton}
-                                    onClick={addProduct}
-                                >
-                                    + Add
-                                </button>
-
-                            </div>
-
-                        </div>
-
-
-                        {form.purchases.length === 0 && (
-
-                            <div className={styles.empty}>
-
-                                <span>
-                                    📦
-                                </span>
-
-                                <p>
-                                    No products added yet
-                                </p>
-
-                                <small>
-                                    Add products purchased by
-                                    this customer.
-                                </small>
-
-                            </div>
-
-                        )}
-
-
-                        <div className={styles.list}>
-
-                            {form.purchases.map(
-                                (product, index) => (
-
-                                    <div
-                                        className={styles.product}
-                                        key={index}
-                                    >
-
-                                        <div className={styles.productTop}>
-
-                                            <span>
-                                                PRODUCT {index + 1}
-                                            </span>
-
-                                            <button
-                                                type="button"
-                                                onClick={() =>
-                                                    removeProduct(index)
-                                                }
-                                            >
-                                                ×
-                                            </button>
-
-                                        </div>
-
-
-                                        <input
-                                            className={styles.input}
-                                            placeholder="Product name"
-                                            value={
-                                                product.productName
-                                            }
-                                            onChange={(e) =>
-                                                updateProduct(
-                                                    index,
-                                                    "productName",
-                                                    e.target.value
-                                                )
-                                            }
-                                        />
-
-
-                                        <div className={styles.grid2}>
-
-                                            <select
-                                                className={styles.select}
-                                                value={
-                                                    product.category
-                                                }
-                                                onChange={(e) =>
-                                                    updateProduct(
-                                                        index,
-                                                        "category",
-                                                        e.target.value
-                                                    )
-                                                }
-                                            >
-
-                                                <option value="cement">
-                                                    Cement
-                                                </option>
-
-                                                <option value="iron_rod">
-                                                    Iron Rod
-                                                </option>
-
-                                                <option value="iron_sheet">
-                                                    Iron Sheet
-                                                </option>
-
-                                                <option value="other">
-                                                    Other
-                                                </option>
-
-                                            </select>
-
-
-                                            <div
-                                                className={
-                                                    styles.quantity
-                                                }
-                                            >
-
-                                                <input
-                                                    className={styles.input}
-                                                    type="number"
-                                                    min="0"
-                                                    step="0.01"
-                                                    placeholder="Quantity"
-                                                    value={
-                                                        product.quantity
-                                                    }
-                                                    onChange={(e) =>
-                                                        updateProduct(
-                                                            index,
-                                                            "quantity",
-                                                            e.target.value
-                                                        )
-                                                    }
-                                                />
-
-                                                <select
-                                                    className={styles.select}
-                                                    value={
-                                                        product.unit
-                                                    }
-                                                    onChange={(e) =>
-                                                        updateProduct(
-                                                            index,
-                                                            "unit",
-                                                            e.target.value
-                                                        )
-                                                    }
-                                                >
-
-                                                    <option value="bag">
-                                                        Bags
-                                                    </option>
-
-                                                    <option value="ton">
-                                                        Tons
-                                                    </option>
-
-                                                    <option value="piece">
-                                                        Pieces
-                                                    </option>
-
-                                                </select>
-
-                                            </div>
-
-                                        </div>
-
-                                    </div>
-
-                                )
-                            )}
-
-                        </div>
-
-                    </section>
-
-
-                    {/* GIFTS */}
-
-                    <section className={styles.card}>
-
-                        <div className={styles.cardHeader}>
-
-                            <div className={styles.icon}>
-                                🎁
-                            </div>
-
-                            <div className={styles.flexHeader}>
-
-                                <div>
-
-                                    <h2>
-                                        Gifts Given
-                                    </h2>
-
-                                    <p>
-                                        Keep track of customer gifts
-                                    </p>
-
-                                </div>
-
-                                <button
-                                    type="button"
-                                    className={styles.addButton}
-                                    onClick={addGift}
-                                >
-                                    + Add
-                                </button>
-
-                            </div>
-
-                        </div>
-
-
-                        {form.gifts.length === 0 && (
-
-                            <div className={styles.empty}>
-
-                                <span>
-                                    🎁
-                                </span>
-
-                                <p>
-                                    No gifts recorded
-                                </p>
-
-                                <small>
-                                    Record gifts given to this
-                                    customer.
-                                </small>
-
-                            </div>
-
-                        )}
-
-
-                        <div className={styles.list}>
-
-                            {form.gifts.map(
-                                (gift, index) => (
-
-                                    <div
-                                        className={styles.gift}
-                                        key={index}
-                                    >
-
-                                        <div
-                                            className={
-                                                styles.productTop
-                                            }
-                                        >
-
-                                            <span>
-                                                GIFT {index + 1}
-                                            </span>
-
-                                            <button
-                                                type="button"
-                                                onClick={() =>
-                                                    removeGift(index)
-                                                }
-                                            >
-                                                ×
-                                            </button>
-
-                                        </div>
-
-
-                                        <input
-                                            className={styles.input}
-                                            placeholder="Gift name"
-                                            value={gift.name}
-                                            onChange={(e) =>
-                                                updateGift(
-                                                    index,
-                                                    "name",
-                                                    e.target.value
-                                                )
-                                            }
-                                        />
-
-
-                                        <div
-                                            className={
-                                                styles.grid2
-                                            }
-                                        >
-
-                                            <select
-                                                className={styles.select}
-                                                value={
-                                                    gift.occasion
-                                                }
-                                                onChange={(e) =>
-                                                    updateGift(
-                                                        index,
-                                                        "occasion",
-                                                        e.target.value
-                                                    )
-                                                }
-                                            >
-
-                                                <option value="business">
-                                                    Business
-                                                </option>
-
-                                                <option value="festival">
-                                                    Festival
-                                                </option>
-
-                                                <option value="birthday">
-                                                    Birthday
-                                                </option>
-
-                                                <option value="loyalty">
-                                                    Loyalty
-                                                </option>
-
-                                                <option value="special">
-                                                    Special
-                                                </option>
-
-                                                <option value="other">
-                                                    Other
-                                                </option>
-
-                                            </select>
-
-
-                                            <input
-                                                className={styles.input}
-                                                type="number"
-                                                min="1"
-                                                placeholder="Quantity"
-                                                value={
-                                                    gift.quantity
-                                                }
-                                                onChange={(e) =>
-                                                    updateGift(
-                                                        index,
-                                                        "quantity",
-                                                        e.target.value
-                                                    )
-                                                }
-                                            />
-
-                                        </div>
-
-
-                                        <textarea
-                                            className={styles.textarea}
-                                            placeholder="Gift notes..."
-                                            value={
-                                                gift.notes
-                                            }
-                                            onChange={(e) =>
-                                                updateGift(
-                                                    index,
-                                                    "notes",
-                                                    e.target.value
-                                                )
-                                            }
-                                        />
-
-                                    </div>
-
-                                )
-                            )}
-
-                        </div>
-
-                    </section>
-
-
                     {/* SAVE */}
 
                     <div className={styles.saveArea}>
@@ -972,7 +668,65 @@ export default function CustomerDashboard() {
 
                     </div>
 
+
+                    {showCamera && (
+                        <div className={styles.cameraOverlay}>
+
+                            <div className={styles.cameraModal}>
+
+                                <div className={styles.cameraHeader}>
+                                    <h2>Take Photo</h2>
+
+                                    <button
+                                        type="button"
+                                        onClick={closeCamera}
+                                        className={styles.closeButton}
+                                    >
+                                        ×
+                                    </button>
+                                </div>
+
+                                <div className={styles.videoContainer}>
+
+                                    <video
+                                        ref={videoRef}
+                                        autoPlay
+                                        playsInline
+                                        muted
+                                        className={styles.cameraVideo}
+                                    />
+
+                                </div>
+
+                                <div className={styles.cameraActions}>
+
+                                    <button
+                                        type="button"
+                                        onClick={closeCamera}
+                                        className={styles.cancelButton}
+                                    >
+                                        Cancel
+                                    </button>
+
+                                    <button
+                                        type="button"
+                                        onClick={capturePhoto}
+                                        className={styles.captureButton}
+                                    >
+                                        📸 Take Photo
+                                    </button>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+                    )}
+
+
                 </div>
+
+
 
             </form>
 

@@ -14,6 +14,8 @@ export const dashboard = () => {
     const router = useRouter();
 
     const [customers, setCustomers] = useState([]);
+    const [analytics, setAnalytics] = useState(null);
+    const [analyticsLoading, setAnalyticsLoading] = useState(true);
 
     // Search
     const [search, setSearch] = useState("");
@@ -25,35 +27,64 @@ export const dashboard = () => {
     /* =========================
        FETCH CUSTOMERS
     ========================= */
+    useEffect(() => {
+        if (!session) {
+
+            setTimeout(() => {
+                if (!session) {
+                    router.push("/authenticate/login");
+                }
+            }, 3000);
+        }
+    }, [session]);
 
     useEffect(() => {
 
-        const fetchCustomerData = async () => {
+        const fetchDashboardData = async () => {
 
             try {
 
-                const response = await axios.get(
-                    "/api/customers"
-                );
+                setAnalyticsLoading(true);
 
-                console.log(response.data);
+                const [
+                    customersResponse,
+                    analyticsResponse
+                ] = await Promise.all([
+
+                    axios.get("/api/customers"),
+
+                    axios.get("/api/dashboard_analytics"),
+
+                ]);
+
 
                 setCustomers(
-                    response.data.customers || []
+                    customersResponse.data.customers || []
                 );
 
-            } catch (e) {
+
+                setAnalytics(
+                    analyticsResponse.data.data || null
+                );
+
+
+            } catch (error) {
 
                 console.error(
-                    "Failed to fetch customers:",
-                    e
+                    "Failed to fetch dashboard data:",
+                    error
                 );
+
+            } finally {
+
+                setAnalyticsLoading(false);
 
             }
 
         };
 
-        fetchCustomerData();
+
+        fetchDashboardData();
 
     }, []);
 
@@ -257,6 +288,207 @@ export const dashboard = () => {
     return (
 
         <>
+            {/* =========================
+    BUSINESS ANALYTICS
+========================= */}
+
+            <div className={styles.analyticsGrid}>
+
+                {/* CUSTOMERS */}
+
+                <div className={styles.analyticsCard}>
+
+                    <div className={styles.analyticsIcon}>
+                        👥
+                    </div>
+
+                    <div className={styles.analyticsContent}>
+
+                        <span>
+                            Total Customers
+                        </span>
+
+                        <strong>
+                            {analyticsLoading
+                                ? "—"
+                                : analytics?.customers?.total || 0
+                            }
+                        </strong>
+
+                        <small>
+                            {analytics?.customers?.active || 0} active
+                        </small>
+
+                    </div>
+
+                </div>
+
+
+                {/* GIFT READY */}
+
+                <div className={styles.analyticsCard}>
+
+                    <div className={styles.analyticsIcon}>
+                        🎁
+                    </div>
+
+                    <div className={styles.analyticsContent}>
+
+                        <span>
+                            Ready for Gifts
+                        </span>
+
+                        <strong>
+                            {analyticsLoading
+                                ? "—"
+                                : analytics?.gifts?.ready || 0
+                            }
+                        </strong>
+
+                        <small>
+                            VIP & high-value customers
+                        </small>
+
+                    </div>
+
+                </div>
+
+
+                {/* GIFTS GIVEN */}
+
+                <div className={styles.analyticsCard}>
+
+                    <div className={styles.analyticsIcon}>
+                        🎁
+                    </div>
+
+                    <div className={styles.analyticsContent}>
+
+                        <span>
+                            Gifts Given
+                        </span>
+
+                        <strong>
+                            {analyticsLoading
+                                ? "—"
+                                : analytics?.gifts?.given || 0
+                            }
+                        </strong>
+
+                        <small>
+                            {analytics?.year || new Date().getFullYear()}
+                        </small>
+
+                    </div>
+
+                </div>
+
+
+                {/* CEMENT */}
+
+                <div className={styles.analyticsCard}>
+
+                    <div className={styles.analyticsIcon}>
+                        🧱
+                    </div>
+
+                    <div className={styles.analyticsContent}>
+
+                        <span>
+                            Cement Sales
+                        </span>
+
+                        <strong>
+                            {analyticsLoading
+                                ? "—"
+                                : (
+                                    analytics?.sales?.cement || 0
+                                ).toLocaleString("en-IN")
+                            }
+                        </strong>
+
+                        <small>
+                            Bags · {analytics?.year}
+                        </small>
+
+                    </div>
+
+                </div>
+
+
+                {/* SARIYA */}
+
+                <div className={styles.analyticsCard}>
+
+                    <div className={styles.analyticsIcon}>
+                        🔩
+                    </div>
+
+                    <div className={styles.analyticsContent}>
+
+                        <span>
+                            Sariya Sales
+                        </span>
+
+                        <strong>
+                            {analyticsLoading
+                                ? "—"
+                                : (
+                                    analytics?.sales?.sariya || 0
+                                ).toLocaleString("en-IN")
+                            }
+                        </strong>
+
+                        <small>
+                            Bundles · {analytics?.year}
+                        </small>
+
+                    </div>
+
+                </div>
+
+
+                {/* TOTAL SALES */}
+
+                <div className={styles.analyticsCard}>
+
+                    <div className={styles.analyticsIcon}>
+                        ₹
+                    </div>
+
+                    <div className={styles.analyticsContent}>
+
+                        <span>
+                            Total Sales
+                        </span>
+
+                        <strong>
+
+                            {analyticsLoading
+                                ? "—"
+                                : new Intl.NumberFormat(
+                                    "en-IN",
+                                    {
+                                        style: "currency",
+                                        currency: "INR",
+                                        maximumFractionDigits: 0,
+                                    }
+                                ).format(
+                                    analytics?.sales?.total || 0
+                                )
+                            }
+
+                        </strong>
+
+                        <small>
+                            {analytics?.year}
+                        </small>
+
+                    </div>
+
+                </div>
+
+            </div>
 
             <div className={styles.customerList}>
 
