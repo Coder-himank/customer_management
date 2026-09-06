@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import axios from "axios";
 import styles from "@/styles/GiftManagement.module.css";
 import { useRouter } from "next/router";
+
 export default function GiftsPage() {
   const [gifts, setGifts] = useState([]);
   const [customers, setCustomers] = useState([]);
@@ -19,7 +20,6 @@ export default function GiftsPage() {
   const [showCamera, setShowCamera] = useState(false);
   const [cameraStream, setCameraStream] = useState(null);
   const [cameraLoading, setCameraLoading] = useState(false);
-
 
   const router = useRouter();
 
@@ -51,63 +51,78 @@ export default function GiftsPage() {
     try {
       setLoading(true);
 
-      const [giftsResponse, customersResponse] = await Promise.all([
+      /*
+       * Gifts, customers and targets are all
+       * independent collections.
+       */
+      const [
+        giftsResponse,
+        customersResponse,
+        targetsResponse,
+      ] = await Promise.all([
         axios.get("/api/gifts"),
         axios.get("/api/customers"),
+        axios.get("/api/targets"),
       ]);
+
+      /* =========================
+         GIFTS
+      ========================= */
 
       const giftsData =
         giftsResponse.data?.gifts ||
+        giftsResponse.data?.data ||
         [];
+
+      /* =========================
+         CUSTOMERS
+      ========================= */
 
       const customersData =
         customersResponse.data?.customers ||
+        customersResponse.data?.data ||
         customersResponse.data ||
         [];
 
-      setGifts(Array.isArray(giftsData) ? giftsData : []);
-      setCustomers(Array.isArray(customersData) ? customersData : []);
+      /* =========================
+         TARGETS
+      ========================= */
+
+      const targetsData =
+        targetsResponse.data?.data ||
+        targetsResponse.data?.targets ||
+        targetsResponse.data ||
+        [];
+
+      setGifts(
+        Array.isArray(giftsData)
+          ? giftsData
+          : []
+      );
+
+      setCustomers(
+        Array.isArray(customersData)
+          ? customersData
+          : []
+      );
+
+      setTargets(
+        Array.isArray(targetsData)
+          ? targetsData
+          : []
+      );
     } catch (error) {
-      console.error("Failed to load data:", error);
+      console.error(
+        "Failed to load data:",
+        error
+      );
 
       alert(
         error.response?.data?.error ||
-        "Failed to load gifts and customers"
+        "Failed to load gifts, customers and targets"
       );
     } finally {
       setLoading(false);
-    }
-  };
-
-  /* =====================================================
-     LOAD TARGETS FOR CUSTOMER
-  ===================================================== */
-
-  const loadTargets = async (customerId) => {
-    if (!customerId) {
-      setTargets([]);
-      return;
-    }
-
-    try {
-      const response = await axios.get(
-        `/api/targets`
-      );
-
-      const data =
-        response.data?.data ||
-        response.data ||
-        [];
-
-      setTargets(Array.isArray(data) ? data : []);
-    } catch (error) {
-      console.error("Failed to load targets:", error);
-      setTargets([]);
-
-      alert(
-        error.response?.data?.error ||
-        "Failed to load customer targets"
-      );
     }
   };
 
@@ -126,22 +141,19 @@ export default function GiftsPage() {
 
   /* =====================================================
      CUSTOMER CHANGE
+     
+     IMPORTANT:
+     Customer does NOT control targets anymore.
+     Target is a general/global target.
   ===================================================== */
 
-  const handleCustomerChange = async (e) => {
+  const handleCustomerChange = (e) => {
     const customerId = e.target.value;
 
     setForm((prev) => ({
       ...prev,
       customerId,
-      targetId: "",
     }));
-
-    setTargets([]);
-
-    if (customerId) {
-      await loadTargets(customerId);
-    }
   };
 
   /* =====================================================
@@ -157,13 +169,18 @@ export default function GiftsPage() {
       name: "",
       quantity: 1,
       estimatedValue: "",
-      givenDate: new Date().toISOString().split("T")[0],
+      givenDate:
+        new Date()
+          .toISOString()
+          .split("T")[0],
       occasion: "customer_reward",
       notes: "",
       receiverPhoto: "",
     });
 
-    setTargets([]);
+    /*
+     * Targets are already globally loaded.
+     */
     setPhotoFile(null);
     setPhotoPreview("");
 
@@ -174,14 +191,16 @@ export default function GiftsPage() {
      OPEN EDIT MODAL
   ===================================================== */
 
-  const openEditModal = async (gift) => {
+  const openEditModal = (gift) => {
     setEditingGift(gift);
 
     const formattedDate = gift.givenDate
       ? new Date(gift.givenDate)
         .toISOString()
         .split("T")[0]
-      : new Date().toISOString().split("T")[0];
+      : new Date()
+        .toISOString()
+        .split("T")[0];
 
     const customerId =
       typeof gift.customerId === "object"
@@ -196,25 +215,41 @@ export default function GiftsPage() {
     setForm({
       customerId: customerId || "",
       targetId: targetId || "",
+
       name: gift.name || "",
-      quantity: gift.quantity || 1,
-      estimatedValue: gift.estimatedValue || "",
+
+      quantity:
+        gift.quantity || 1,
+
+      estimatedValue:
+        gift.estimatedValue || "",
+
       givenDate: formattedDate,
-      occasion: gift.occasion || "customer_reward",
+
+      occasion:
+        gift.occasion ||
+        "customer_reward",
+
       notes: gift.notes || "",
-      receiverPhoto: gift.receiverPhoto || "",
+
+      receiverPhoto:
+        gift.receiverPhoto || "",
     });
 
     setPhotoFile(null);
-    setPhotoPreview(gift.receiverPhoto || "");
+
+    setPhotoPreview(
+      gift.receiverPhoto || ""
+    );
+
+    /*
+     * DO NOT load targets here.
+     *
+     * Targets are global and already exist
+     * in the targets state.
+     */
 
     setShowModal(true);
-
-    if (customerId) {
-      await loadTargets(customerId);
-    } else {
-      setTargets([]);
-    }
   };
 
   /* =====================================================
@@ -229,52 +264,65 @@ export default function GiftsPage() {
 
     setPhotoFile(null);
     setPhotoPreview("");
-
-    setTargets([]);
   };
 
   /* =====================================================
-     PHOTO CHANGE
+     PHOTO / CAMERA
   ===================================================== */
 
   const openCamera = async () => {
     try {
       setCameraLoading(true);
 
-      if (!navigator.mediaDevices?.getUserMedia) {
+      if (
+        !navigator.mediaDevices?.getUserMedia
+      ) {
         alert(
           "Your browser does not support camera access."
         );
+
         return;
       }
 
       const stream =
-        await navigator.mediaDevices.getUserMedia({
-          video: {
-            facingMode: "environment",
-          },
-          audio: false,
-        });
+        await navigator.mediaDevices.getUserMedia(
+          {
+            video: {
+              facingMode: "environment",
+            },
+
+            audio: false,
+          }
+        );
 
       setCameraStream(stream);
       setShowCamera(true);
 
-      // Wait until video element exists
       setTimeout(() => {
         if (videoRef.current) {
-          videoRef.current.srcObject = stream;
+          videoRef.current.srcObject =
+            stream;
+
           videoRef.current.play();
         }
       }, 100);
-
     } catch (error) {
-      console.error("Camera error:", error);
+      console.error(
+        "Camera error:",
+        error
+      );
 
-      if (error.name === "NotAllowedError") {
+      if (
+        error.name ===
+        "NotAllowedError"
+      ) {
         alert(
           "Camera permission was denied. Please allow camera access in your browser."
         );
-      } else if (error.name === "NotFoundError") {
+      } else if (
+        error.name ===
+        "NotFoundError"
+      ) {
         alert(
           "No camera was found on this device."
         );
@@ -291,14 +339,31 @@ export default function GiftsPage() {
   const capturePhoto = () => {
     const video = videoRef.current;
 
-    if (!video) return;
+    if (
+      !video ||
+      !video.videoWidth ||
+      !video.videoHeight
+    ) {
+      alert(
+        "Camera is not ready yet."
+      );
 
-    const canvas = document.createElement("canvas");
+      return;
+    }
 
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
+    const canvas =
+      document.createElement(
+        "canvas"
+      );
 
-    const context = canvas.getContext("2d");
+    canvas.width =
+      video.videoWidth;
+
+    canvas.height =
+      video.videoHeight;
+
+    const context =
+      canvas.getContext("2d");
 
     context.drawImage(
       video,
@@ -310,7 +375,13 @@ export default function GiftsPage() {
 
     canvas.toBlob(
       (blob) => {
-        if (!blob) return;
+        if (!blob) {
+          alert(
+            "Failed to capture photo."
+          );
+
+          return;
+        }
 
         const file = new File(
           [blob],
@@ -337,7 +408,9 @@ export default function GiftsPage() {
     if (cameraStream) {
       cameraStream
         .getTracks()
-        .forEach((track) => track.stop());
+        .forEach((track) =>
+          track.stop()
+        );
     }
 
     setCameraStream(null);
@@ -345,23 +418,38 @@ export default function GiftsPage() {
   };
 
   const handlePhotoChange = (e) => {
-    const file = e.target.files?.[0];
+    const file =
+      e.target.files?.[0];
 
     if (!file) return;
 
-    if (!file.type.startsWith("image/")) {
-      alert("Please select an image file.");
+    if (
+      !file.type.startsWith(
+        "image/"
+      )
+    ) {
+      alert(
+        "Please select an image file."
+      );
+
       return;
     }
 
-    if (file.size > 10 * 1024 * 1024) {
-      alert("Image size must be less than 10MB.");
+    if (
+      file.size >
+      10 * 1024 * 1024
+    ) {
+      alert(
+        "Image size must be less than 10MB."
+      );
+
       return;
     }
 
     setPhotoFile(file);
 
-    const previewUrl = URL.createObjectURL(file);
+    const previewUrl =
+      URL.createObjectURL(file);
 
     setPhotoPreview(previewUrl);
   };
@@ -371,39 +459,59 @@ export default function GiftsPage() {
   ===================================================== */
 
   const uploadPhoto = async () => {
+    /*
+     * No new image.
+     * Keep the existing image.
+     */
     if (!photoFile) {
-      return form.receiverPhoto || "";
+      return (
+        form.receiverPhoto || ""
+      );
     }
 
-    const formData = new FormData();
+    const formData =
+      new FormData();
 
-    formData.append("file", photoFile);
-    formData.append("folder", "tradeintel/gifts");
+    formData.append(
+      "file",
+      photoFile
+    );
+
+    formData.append(
+      "folder",
+      "tradeintel/gifts"
+    );
 
     try {
-      const response = await axios.post(
-        "/api/files/upload",
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
+      const response =
+        await axios.post(
+          "/api/files/upload",
+          formData,
+          {
+            headers: {
+              "Content-Type":
+                "multipart/form-data",
+            },
+          }
+        );
 
-      // Supports both possible response formats
       const uploadedUrl =
         response.data?.data?.url ||
         response.data?.url ||
         "";
 
       if (!uploadedUrl) {
-        throw new Error("Upload URL was not returned.");
+        throw new Error(
+          "Upload URL was not returned."
+        );
       }
 
       return uploadedUrl;
     } catch (error) {
-      console.error("Photo upload failed:", error);
+      console.error(
+        "Photo upload failed:",
+        error
+      );
 
       throw new Error(
         error.response?.data?.error ||
@@ -420,52 +528,90 @@ export default function GiftsPage() {
     e.preventDefault();
 
     if (!form.customerId) {
-      alert("Please select a customer.");
+      alert(
+        "Please select a customer."
+      );
+
       return;
     }
 
     if (!form.name.trim()) {
-      alert("Please enter the gift name.");
+      alert(
+        "Please enter the gift name."
+      );
+
       return;
     }
 
-    if (!form.quantity || Number(form.quantity) < 1) {
-      alert("Quantity must be at least 1.");
+    if (
+      !form.quantity ||
+      Number(form.quantity) < 1
+    ) {
+      alert(
+        "Quantity must be at least 1."
+      );
+
       return;
     }
 
     try {
       setSubmitting(true);
 
-      let photoUrl = form.receiverPhoto || "";
+      let photoUrl =
+        form.receiverPhoto || "";
 
-      // Upload only when a new photo is selected
+      /*
+       * Upload only when a new
+       * photo has been selected.
+       */
       if (photoFile) {
-        photoUrl = await uploadPhoto();
+        photoUrl =
+          await uploadPhoto();
       }
 
       const payload = {
-        customerId: form.customerId,
-        targetId: form.targetId || null,
+        customerId:
+          form.customerId,
 
-        name: form.name.trim(),
+        /*
+         * This is the GLOBAL target.
+         */
+        targetId:
+          form.targetId || null,
 
-        quantity: Number(form.quantity),
+        name:
+          form.name.trim(),
 
-        estimatedValue: form.estimatedValue
-          ? Number(form.estimatedValue)
-          : 0,
+        quantity:
+          Number(form.quantity),
 
-        receiverPhoto: photoUrl,
+        estimatedValue:
+          form.estimatedValue
+            ? Number(
+              form.estimatedValue
+            )
+            : 0,
 
-        givenDate: form.givenDate
-          ? new Date(form.givenDate)
-          : new Date(),
+        receiverPhoto:
+          photoUrl,
 
-        occasion: form.occasion,
+        givenDate:
+          form.givenDate
+            ? new Date(
+              form.givenDate
+            )
+            : new Date(),
 
-        notes: form.notes.trim(),
+        occasion:
+          form.occasion,
+
+        notes:
+          form.notes.trim(),
       };
+
+      /* =========================
+         EDIT
+      ========================= */
 
       if (editingGift) {
         await axios.put(
@@ -473,21 +619,34 @@ export default function GiftsPage() {
           payload
         );
 
-        alert("Gift updated successfully.");
-      } else {
+        alert(
+          "Gift updated successfully."
+        );
+      }
+
+      /* =========================
+         CREATE
+      ========================= */
+
+      else {
         await axios.post(
           "/api/gifts",
           payload
         );
 
-        alert("Gift added successfully.");
+        alert(
+          "Gift added successfully."
+        );
       }
 
       closeModal();
 
       await loadData();
     } catch (error) {
-      console.error("Gift save error:", error);
+      console.error(
+        "Gift save error:",
+        error
+      );
 
       alert(
         error.response?.data?.error ||
@@ -504,20 +663,28 @@ export default function GiftsPage() {
   ===================================================== */
 
   const deleteGift = async (giftId) => {
-    const confirmDelete = window.confirm(
-      "Are you sure you want to delete this gift record?"
-    );
+    const confirmDelete =
+      window.confirm(
+        "Are you sure you want to delete this gift record?"
+      );
 
     if (!confirmDelete) return;
 
     try {
-      await axios.delete(`/api/gifts/${giftId}`);
+      await axios.delete(
+        `/api/gifts/${giftId}`
+      );
 
-      alert("Gift deleted successfully.");
+      alert(
+        "Gift deleted successfully."
+      );
 
       await loadData();
     } catch (error) {
-      console.error("Delete gift error:", error);
+      console.error(
+        "Delete gift error:",
+        error
+      );
 
       alert(
         error.response?.data?.error ||
@@ -530,74 +697,130 @@ export default function GiftsPage() {
      FILTER GIFTS
   ===================================================== */
 
-  const filteredGifts = gifts.filter((gift) => {
-    const customerName =
-      typeof gift.customerId === "object"
-        ? gift.customerId?.name || ""
-        : "";
+  const filteredGifts =
+    gifts.filter((gift) => {
+      const customerName =
+        typeof gift.customerId ===
+          "object"
+          ? gift.customerId?.name ||
+          ""
+          : "";
 
-    const customerPhone =
-      typeof gift.customerId === "object"
-        ? gift.customerId?.phone || ""
-        : "";
+      const customerPhone =
+        typeof gift.customerId ===
+          "object"
+          ? gift.customerId?.phone ||
+          ""
+          : "";
 
-    const giftName = gift.name || "";
+      const giftName =
+        gift.name || "";
 
-    const searchText = search.toLowerCase();
+      const searchText =
+        search.toLowerCase();
 
-    return (
-      customerName
-        .toLowerCase()
-        .includes(searchText) ||
-      String(customerPhone)
-        .toLowerCase()
-        .includes(searchText) ||
-      giftName
-        .toLowerCase()
-        .includes(searchText)
-    );
-  });
+      return (
+        customerName
+          .toLowerCase()
+          .includes(searchText) ||
+        String(customerPhone)
+          .toLowerCase()
+          .includes(searchText) ||
+        giftName
+          .toLowerCase()
+          .includes(searchText)
+      );
+    });
 
   /* =====================================================
      CUSTOMER DISPLAY
   ===================================================== */
 
-  const getCustomerName = (gift) => {
+  const getCustomerName = (
+    gift
+  ) => {
     if (
       gift.customerId &&
-      typeof gift.customerId === "object"
+      typeof gift.customerId ===
+      "object"
     ) {
-      return gift.customerId.name || "Unknown Customer";
+      return (
+        gift.customerId.name ||
+        "Unknown Customer"
+      );
     }
 
-    const customer = customers.find(
-      (c) => c._id === gift.customerId
-    );
+    const customer =
+      customers.find(
+        (c) =>
+          c._id ===
+          gift.customerId
+      );
 
-    return customer?.name || "Unknown Customer";
+    return (
+      customer?.name ||
+      "Unknown Customer"
+    );
   };
 
-  const getCustomerPhone = (gift) => {
+  const getCustomerPhone = (
+    gift
+  ) => {
     if (
       gift.customerId &&
-      typeof gift.customerId === "object"
+      typeof gift.customerId ===
+      "object"
     ) {
-      return gift.customerId.phone || "";
+      return (
+        gift.customerId.phone ||
+        ""
+      );
     }
 
-    const customer = customers.find(
-      (c) => c._id === gift.customerId
-    );
+    const customer =
+      customers.find(
+        (c) =>
+          c._id ===
+          gift.customerId
+      );
 
     return customer?.phone || "";
   };
 
-  const getTargetName = (gift) => {
+  /* =====================================================
+     TARGET DISPLAY
+  ===================================================== */
+
+  const getTargetName = (
+    gift
+  ) => {
     if (
       gift.targetId &&
-      typeof gift.targetId === "object"
+      typeof gift.targetId ===
+      "object"
     ) {
-      return gift.targetId.name || "No Target";
+      return (
+        gift.targetId.name ||
+        "No Target"
+      );
+    }
+
+    /*
+     * If target isn't populated
+     * by the API, find it locally.
+     */
+    if (gift.targetId) {
+      const target =
+        targets.find(
+          (target) =>
+            target._id ===
+            gift.targetId
+        );
+
+      return (
+        target?.name ||
+        "Unknown Target"
+      );
     }
 
     return "No Target";
@@ -607,10 +830,14 @@ export default function GiftsPage() {
      DATE FORMAT
   ===================================================== */
 
-  const formatDate = (date) => {
+  const formatDate = (
+    date
+  ) => {
     if (!date) return "-";
 
-    return new Date(date).toLocaleDateString(
+    return new Date(
+      date
+    ).toLocaleDateString(
       "en-IN",
       {
         day: "2-digit",
@@ -624,19 +851,28 @@ export default function GiftsPage() {
      OCCASION LABEL
   ===================================================== */
 
-  const getOccasionLabel = (occasion) => {
+  const getOccasionLabel = (
+    occasion
+  ) => {
     const occasions = {
       diwali: "Diwali",
       holi: "Holi",
       new_year: "New Year",
       birthday: "Birthday",
-      anniversary: "Anniversary",
-      business_event: "Business Event",
-      customer_reward: "Customer Reward",
+      anniversary:
+        "Anniversary",
+      business_event:
+        "Business Event",
+      customer_reward:
+        "Customer Reward",
       other: "Other",
     };
 
-    return occasions[occasion] || occasion || "-";
+    return (
+      occasions[occasion] ||
+      occasion ||
+      "-"
+    );
   };
 
   /* =====================================================
@@ -650,23 +886,28 @@ export default function GiftsPage() {
           HEADER
       ================================================= */}
 
-
-
-
       <div className={styles.header}>
 
         <div>
-          <h1>Gift Management</h1>
+          <h1>
+            Gift Management
+          </h1>
 
           <p>
-            Manage customer gifts, rewards and
-            target-based incentives.
+            Manage customer gifts,
+            rewards and target-based
+            incentives.
           </p>
         </div>
 
         <button
-          className={styles.primaryButton}
-          onClick={openAddModal}
+          type="button"
+          className={
+            styles.primaryButton
+          }
+          onClick={
+            openAddModal
+          }
         >
           + Add Gift
         </button>
@@ -677,18 +918,33 @@ export default function GiftsPage() {
           SEARCH
       ================================================= */}
 
-      <div className={styles.toolbar}>
+      <div
+        className={
+          styles.toolbar
+        }
+      >
 
         <input
           type="text"
           placeholder="Search customer or gift..."
           value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className={styles.searchInput}
+          onChange={(e) =>
+            setSearch(
+              e.target.value
+            )
+          }
+          className={
+            styles.searchInput
+          }
         />
 
-        <div className={styles.count}>
-          {filteredGifts.length} Gifts
+        <div
+          className={
+            styles.count
+          }
+        >
+          {filteredGifts.length}{" "}
+          Gifts
         </div>
 
       </div>
@@ -697,176 +953,306 @@ export default function GiftsPage() {
           TABLE
       ================================================= */}
 
-      <div className={styles.tableContainer}>
+      <div
+        className={
+          styles.tableContainer
+        }
+      >
 
         {loading ? (
-          <div className={styles.loading}>
+          <div
+            className={
+              styles.loading
+            }
+          >
             Loading gifts...
           </div>
-        ) : filteredGifts.length === 0 ? (
-          <div className={styles.empty}>
-            <div className={styles.emptyIcon}>
+        ) : filteredGifts.length ===
+          0 ? (
+          <div
+            className={
+              styles.empty
+            }
+          >
+
+            <div
+              className={
+                styles.emptyIcon
+              }
+            >
               🎁
             </div>
 
-            <h3>No gifts found</h3>
+            <h3>
+              No gifts found
+            </h3>
 
             <p>
-              Add your first customer gift to
-              start tracking rewards.
+              Add your first customer
+              gift to start tracking
+              rewards.
             </p>
 
             <button
-              className={styles.primaryButton}
-              onClick={openAddModal}
+              type="button"
+              className={
+                styles.primaryButton
+              }
+              onClick={
+                openAddModal
+              }
             >
               + Add Gift
             </button>
+
           </div>
         ) : (
-          <table className={styles.table}>
+          <table
+            className={
+              styles.table
+            }
+          >
 
             <thead>
               <tr>
-                <th>Photo</th>
-                <th>Customer</th>
-                <th>Gift</th>
-                <th>Target</th>
-                <th>Quantity</th>
-                <th>Value</th>
-                <th>Occasion</th>
-                <th>Date</th>
-                <th>Actions</th>
+                <th>
+                  Photo
+                </th>
+
+                <th>
+                  Customer
+                </th>
+
+                <th>
+                  Gift
+                </th>
+
+                <th>
+                  Target
+                </th>
+
+                <th>
+                  Quantity
+                </th>
+
+                <th>
+                  Value
+                </th>
+
+                <th>
+                  Occasion
+                </th>
+
+                <th>
+                  Date
+                </th>
+
+                <th>
+                  Actions
+                </th>
               </tr>
             </thead>
 
             <tbody>
 
-              {filteredGifts.map((gift) => (
+              {filteredGifts.map(
+                (gift) => (
 
-                <tr key={gift._id}>
+                  <tr
+                    key={
+                      gift._id
+                    }
+                  >
 
-                  {/* PHOTO */}
+                    {/* PHOTO */}
 
-                  <td>
+                    <td>
 
-                    {gift.receiverPhoto ? (
-                      <img
-                        src={gift.receiverPhoto}
-                        alt={gift.name}
-                        className={styles.tablePhoto}
-                      />
-                    ) : (
-                      <div className={styles.noPhoto}>
-                        🎁
+                      {gift.receiverPhoto ? (
+                        <img
+                          src={
+                            gift.receiverPhoto
+                          }
+                          alt={
+                            gift.name
+                          }
+                          className={
+                            styles.tablePhoto
+                          }
+                        />
+                      ) : (
+                        <div
+                          className={
+                            styles.noPhoto
+                          }
+                        >
+                          🎁
+                        </div>
+                      )}
+
+                    </td>
+
+                    {/* CUSTOMER */}
+
+                    <td>
+
+                      <div
+                        className={
+                          styles.customerCell
+                        }
+                      >
+
+                        <strong>
+                          {
+                            getCustomerName(
+                              gift
+                            )
+                          }
+                        </strong>
+
+                        {getCustomerPhone(
+                          gift
+                        ) && (
+                            <span>
+                              {
+                                getCustomerPhone(
+                                  gift
+                                )
+                              }
+                            </span>
+                          )}
+
                       </div>
-                    )}
 
-                  </td>
+                    </td>
 
-                  {/* CUSTOMER */}
+                    {/* GIFT */}
 
-                  <td>
-
-                    <div className={styles.customerCell}>
-
+                    <td>
                       <strong>
-                        {getCustomerName(gift)}
+                        {
+                          gift.name
+                        }
                       </strong>
+                    </td>
 
-                      {getCustomerPhone(gift) && (
-                        <span>
-                          {getCustomerPhone(gift)}
-                        </span>
+                    {/* TARGET */}
+
+                    <td>
+                      {
+                        getTargetName(
+                          gift
+                        )
+                      }
+                    </td>
+
+                    {/* QUANTITY */}
+
+                    <td>
+                      {
+                        gift.quantity ||
+                        1
+                      }
+                    </td>
+
+                    {/* VALUE */}
+
+                    <td>
+                      ₹
+                      {Number(
+                        gift.estimatedValue ||
+                        0
+                      ).toLocaleString(
+                        "en-IN"
                       )}
+                    </td>
 
-                    </div>
+                    {/* OCCASION */}
 
-                  </td>
+                    <td>
 
-                  {/* GIFT */}
-
-                  <td>
-                    <strong>
-                      {gift.name}
-                    </strong>
-                  </td>
-
-                  {/* TARGET */}
-
-                  <td>
-                    {getTargetName(gift)}
-                  </td>
-
-                  {/* QUANTITY */}
-
-                  <td>
-                    {gift.quantity || 1}
-                  </td>
-
-                  {/* VALUE */}
-
-                  <td>
-                    ₹
-                    {Number(
-                      gift.estimatedValue || 0
-                    ).toLocaleString("en-IN")}
-                  </td>
-
-                  {/* OCCASION */}
-
-                  <td>
-                    <span className={styles.badge}>
-                      {getOccasionLabel(
-                        gift.occasion
-                      )}
-                    </span>
-                  </td>
-
-                  {/* DATE */}
-
-                  <td>
-                    {formatDate(gift.givenDate)}
-                  </td>
-
-                  {/* ACTIONS */}
-
-                  <td>
-
-                    <div className={styles.actions}>
-
-                      <button
-                        className={styles.editButton}
-                        onClick={() =>
-                          openEditModal(gift)
+                      <span
+                        className={
+                          styles.badge
                         }
                       >
-                        Edit
-                      </button>
+                        {
+                          getOccasionLabel(
+                            gift.occasion
+                          )
+                        }
+                      </span>
 
-                      <button
-                        className={styles.deleteButton}
-                        onClick={() =>
-                          deleteGift(gift._id)
+                    </td>
+
+                    {/* DATE */}
+
+                    <td>
+                      {formatDate(
+                        gift.givenDate
+                      )}
+                    </td>
+
+                    {/* ACTIONS */}
+
+                    <td>
+
+                      <div
+                        className={
+                          styles.actions
                         }
                       >
-                        Delete
-                      </button>
-                      <button
-                        className={styles.visitButton}
-                        onClick={() => router.push(`/dashboard/gifts/${gift._id}`)}
-                      >
-                        Visit
-                      </button>
 
-                    </div>
+                        <button
+                          type="button"
+                          className={
+                            styles.editButton
+                          }
+                          onClick={() =>
+                            openEditModal(
+                              gift
+                            )
+                          }
+                        >
+                          Edit
+                        </button>
 
-                  </td>
+                        <button
+                          type="button"
+                          className={
+                            styles.deleteButton
+                          }
+                          onClick={() =>
+                            deleteGift(
+                              gift._id
+                            )
+                          }
+                        >
+                          Delete
+                        </button>
 
-                </tr>
+                        <button
+                          type="button"
+                          className={
+                            styles.visitButton
+                          }
+                          onClick={() =>
+                            router.push(
+                              `/dashboard/gifts/${gift._id}`
+                            )
+                          }
+                        >
+                          Visit
+                        </button>
 
+                      </div>
 
-              ))}
+                    </td>
+
+                  </tr>
+
+                )
+              )}
 
             </tbody>
 
@@ -882,10 +1268,13 @@ export default function GiftsPage() {
       {showModal && (
 
         <div
-          className={styles.modalOverlay}
+          className={
+            styles.modalOverlay
+          }
           onMouseDown={(e) => {
             if (
-              e.target === e.currentTarget &&
+              e.target ===
+              e.currentTarget &&
               !submitting
             ) {
               closeModal();
@@ -893,13 +1282,22 @@ export default function GiftsPage() {
           }}
         >
 
-          <div className={styles.modal}>
+          <div
+            className={
+              styles.modal
+            }
+          >
 
             {/* MODAL HEADER */}
 
-            <div className={styles.modalHeader}>
+            <div
+              className={
+                styles.modalHeader
+              }
+            >
 
               <div>
+
                 <h2>
                   {editingGift
                     ? "Edit Gift"
@@ -907,14 +1305,23 @@ export default function GiftsPage() {
                 </h2>
 
                 <p>
-                  Record a gift given to a customer.
+                  Record a gift given
+                  to a customer.
                 </p>
+
               </div>
 
               <button
-                className={styles.closeButton}
-                onClick={closeModal}
-                disabled={submitting}
+                type="button"
+                className={
+                  styles.closeButton
+                }
+                onClick={
+                  closeModal
+                }
+                disabled={
+                  submitting
+                }
               >
                 ×
               </button>
@@ -924,24 +1331,37 @@ export default function GiftsPage() {
             {/* FORM */}
 
             <form
-              onSubmit={handleSubmit}
-              className={styles.form}
+              onSubmit={
+                handleSubmit
+              }
+              className={
+                styles.form
+              }
             >
 
               {/* =========================================
                   CUSTOMER
               ========================================= */}
 
-              <div className={styles.formGroup}>
+              <div
+                className={
+                  styles.formGroup
+                }
+              >
 
                 <label>
-                  Customer <span>*</span>
+                  Customer{" "}
+                  <span>*</span>
                 </label>
 
                 <select
                   name="customerId"
-                  value={form.customerId}
-                  onChange={handleCustomerChange}
+                  value={
+                    form.customerId
+                  }
+                  onChange={
+                    handleCustomerChange
+                  }
                   required
                 >
 
@@ -949,43 +1369,63 @@ export default function GiftsPage() {
                     -- Select Customer --
                   </option>
 
-                  {customers.map((customer) => (
+                  {customers.map(
+                    (
+                      customer
+                    ) => (
 
-                    <option
-                      key={customer._id}
-                      value={customer._id}
-                    >
+                      <option
+                        key={
+                          customer._id
+                        }
+                        value={
+                          customer._id
+                        }
+                      >
 
-                      {customer.name}
+                        {
+                          customer.name
+                        }
 
-                      {customer.phone
-                        ? ` - ${customer.phone}`
-                        : ""}
+                        {customer.phone
+                          ? ` - ${customer.phone}`
+                          : ""}
 
-                      {customer.companyName
-                        ? ` - ${customer.companyName}`
-                        : ""}
+                        {customer.companyName
+                          ? ` - ${customer.companyName}`
+                          : ""}
 
-                    </option>
+                      </option>
 
-                  ))}
+                    )
+                  )}
 
                 </select>
 
-                {customers.length === 0 && (
-                  <small className={styles.warning}>
-                    No customers found. Please add a
-                    customer first.
-                  </small>
-                )}
+                {customers.length ===
+                  0 && (
+                    <small
+                      className={
+                        styles.warning
+                      }
+                    >
+                      No customers
+                      found. Please add
+                      a customer first.
+                    </small>
+                  )}
 
               </div>
 
               {/* =========================================
-                  TARGET
+                  GENERAL TARGET
               ========================================= */}
 
-              <div className={styles.formGroup}>
+              <div
+                className={
+                  styles.formGroup
+                }
+              >
 
                 <label>
                   Target
@@ -993,45 +1433,52 @@ export default function GiftsPage() {
 
                 <select
                   name="targetId"
-                  value={form.targetId}
-                  onChange={handleChange}
-                  disabled={!form.customerId}
+                  value={
+                    form.targetId
+                  }
+                  onChange={
+                    handleChange
+                  }
                 >
 
                   <option value="">
                     -- No Target --
                   </option>
 
-                  {targets.map((target) => (
+                  {targets.map(
+                    (
+                      target
+                    ) => (
 
-                    <option
-                      key={target._id}
-                      value={target._id}
-                    >
+                      <option
+                        key={
+                          target._id
+                        }
+                        value={
+                          target._id
+                        }
+                      >
 
-                      {target.name}
+                        {
+                          target.name
+                        }
 
-                      {target.targetQuantity
-                        ? ` — ${target.targetQuantity} ${target.unit || ""}`
-                        : ""}
+                        {target.targetQuantity
+                          ? ` — ${target.targetQuantity} ${target.unit || ""}`
+                          : ""}
 
-                    </option>
+                      </option>
 
-                  ))}
+                    )
+                  )}
 
                 </select>
 
-                {!form.customerId && (
-                  <small>
-                    Select a customer first.
-                  </small>
-                )}
-
-                {form.customerId &&
-                  targets.length === 0 && (
+                {targets.length ===
+                  0 && (
                     <small>
-                      No targets found for this
-                      customer.
+                      No targets found.
+                      Create a target first.
                     </small>
                   )}
 
@@ -1041,17 +1488,26 @@ export default function GiftsPage() {
                   GIFT NAME
               ========================================= */}
 
-              <div className={styles.formGroup}>
+              <div
+                className={
+                  styles.formGroup
+                }
+              >
 
                 <label>
-                  Gift Name <span>*</span>
+                  Gift Name{" "}
+                  <span>*</span>
                 </label>
 
                 <input
                   type="text"
                   name="name"
-                  value={form.name}
-                  onChange={handleChange}
+                  value={
+                    form.name
+                  }
+                  onChange={
+                    handleChange
+                  }
                   placeholder="e.g. Smart Watch, Dinner Set, Diwali Gift"
                   required
                 />
@@ -1062,26 +1518,43 @@ export default function GiftsPage() {
                   QUANTITY + VALUE
               ========================================= */}
 
-              <div className={styles.formRow}>
+              <div
+                className={
+                  styles.formRow
+                }
+              >
 
-                <div className={styles.formGroup}>
+                <div
+                  className={
+                    styles.formGroup
+                  }
+                >
 
                   <label>
-                    Quantity <span>*</span>
+                    Quantity{" "}
+                    <span>*</span>
                   </label>
 
                   <input
                     type="number"
                     name="quantity"
                     min="1"
-                    value={form.quantity}
-                    onChange={handleChange}
+                    value={
+                      form.quantity
+                    }
+                    onChange={
+                      handleChange
+                    }
                     required
                   />
 
                 </div>
 
-                <div className={styles.formGroup}>
+                <div
+                  className={
+                    styles.formGroup
+                  }
+                >
 
                   <label>
                     Estimated Value
@@ -1091,8 +1564,12 @@ export default function GiftsPage() {
                     type="number"
                     name="estimatedValue"
                     min="0"
-                    value={form.estimatedValue}
-                    onChange={handleChange}
+                    value={
+                      form.estimatedValue
+                    }
+                    onChange={
+                      handleChange
+                    }
                     placeholder="₹ 0"
                   />
 
@@ -1104,9 +1581,17 @@ export default function GiftsPage() {
                   DATE + OCCASION
               ========================================= */}
 
-              <div className={styles.formRow}>
+              <div
+                className={
+                  styles.formRow
+                }
+              >
 
-                <div className={styles.formGroup}>
+                <div
+                  className={
+                    styles.formGroup
+                  }
+                >
 
                   <label>
                     Given Date
@@ -1115,13 +1600,21 @@ export default function GiftsPage() {
                   <input
                     type="date"
                     name="givenDate"
-                    value={form.givenDate}
-                    onChange={handleChange}
+                    value={
+                      form.givenDate
+                    }
+                    onChange={
+                      handleChange
+                    }
                   />
 
                 </div>
 
-                <div className={styles.formGroup}>
+                <div
+                  className={
+                    styles.formGroup
+                  }
+                >
 
                   <label>
                     Occasion
@@ -1129,8 +1622,12 @@ export default function GiftsPage() {
 
                   <select
                     name="occasion"
-                    value={form.occasion}
-                    onChange={handleChange}
+                    value={
+                      form.occasion
+                    }
+                    onChange={
+                      handleChange
+                    }
                   >
 
                     <option value="customer_reward">
@@ -1175,28 +1672,43 @@ export default function GiftsPage() {
                   PHOTO
               ========================================= */}
 
-              <div className={styles.formGroup}>
+              <div
+                className={
+                  styles.formGroup
+                }
+              >
 
                 <label>
                   Receiver Photo
                 </label>
 
-                <div className={styles.photoActions}>
-
-                  {/* CAMERA */}
+                <div
+                  className={
+                    styles.photoActions
+                  }
+                >
 
                   <button
                     type="button"
-                    className={styles.uploadButton}
-                    onClick={openCamera}
+                    className={
+                      styles.uploadButton
+                    }
+                    onClick={
+                      openCamera
+                    }
+                    disabled={
+                      cameraLoading
+                    }
                   >
-                    📷 Open Camera
+                    {cameraLoading
+                      ? "Opening Camera..."
+                      : "📷 Open Camera"}
                   </button>
 
-                  {/* GALLERY */}
-
                   <label
-                    className={styles.uploadButton}
+                    className={
+                      styles.uploadButton
+                    }
                   >
 
                     🖼️ Choose Photo
@@ -1204,7 +1716,9 @@ export default function GiftsPage() {
                     <input
                       type="file"
                       accept="image/*"
-                      onChange={handlePhotoChange}
+                      onChange={
+                        handlePhotoChange
+                      }
                       hidden
                     />
 
@@ -1217,25 +1731,42 @@ export default function GiftsPage() {
                 {photoPreview && (
 
                   <div
-                    className={styles.previewContainer}
+                    className={
+                      styles.previewContainer
+                    }
                   >
 
                     <img
-                      src={photoPreview}
+                      src={
+                        photoPreview
+                      }
                       alt="Receiver preview"
-                      className={styles.photoPreview}
+                      className={
+                        styles.photoPreview
+                      }
                     />
 
                     <button
                       type="button"
-                      className={styles.removePhoto}
+                      className={
+                        styles.removePhoto
+                      }
                       onClick={() => {
-                        setPhotoFile(null);
-                        setPhotoPreview("");
-                        setForm((prev) => ({
-                          ...prev,
-                          receiverPhoto: "",
-                        }));
+                        setPhotoFile(
+                          null
+                        );
+
+                        setPhotoPreview(
+                          ""
+                        );
+
+                        setForm(
+                          (prev) => ({
+                            ...prev,
+                            receiverPhoto:
+                              "",
+                          })
+                        );
                       }}
                     >
                       Remove Photo
@@ -1251,7 +1782,11 @@ export default function GiftsPage() {
                   NOTES
               ========================================= */}
 
-              <div className={styles.formGroup}>
+              <div
+                className={
+                  styles.formGroup
+                }
+              >
 
                 <label>
                   Notes
@@ -1259,8 +1794,12 @@ export default function GiftsPage() {
 
                 <textarea
                   name="notes"
-                  value={form.notes}
-                  onChange={handleChange}
+                  value={
+                    form.notes
+                  }
+                  onChange={
+                    handleChange
+                  }
                   placeholder="Add any additional information..."
                   rows={4}
                 />
@@ -1271,21 +1810,35 @@ export default function GiftsPage() {
                   BUTTONS
               ========================================= */}
 
-              <div className={styles.formActions}>
+              <div
+                className={
+                  styles.formActions
+                }
+              >
 
                 <button
                   type="button"
-                  className={styles.cancelButton}
-                  onClick={closeModal}
-                  disabled={submitting}
+                  className={
+                    styles.cancelButton
+                  }
+                  onClick={
+                    closeModal
+                  }
+                  disabled={
+                    submitting
+                  }
                 >
                   Cancel
                 </button>
 
                 <button
                   type="submit"
-                  className={styles.primaryButton}
-                  disabled={submitting}
+                  className={
+                    styles.primaryButton
+                  }
+                  disabled={
+                    submitting
+                  }
                 >
 
                   {submitting
@@ -1298,61 +1851,107 @@ export default function GiftsPage() {
 
               </div>
 
-              {showCamera && (
-                <div className={styles.cameraOverlay}>
-
-                  <div className={styles.cameraModal}>
-
-                    <div className={styles.cameraHeader}>
-                      <h2>Take Photo</h2>
-
-                      <button
-                        type="button"
-                        onClick={closeCamera}
-                        className={styles.closeButton}
-                      >
-                        ×
-                      </button>
-                    </div>
-
-                    <div className={styles.videoContainer}>
-
-                      <video
-                        ref={videoRef}
-                        autoPlay
-                        playsInline
-                        muted
-                        className={styles.cameraVideo}
-                      />
-
-                    </div>
-
-                    <div className={styles.cameraActions}>
-
-                      <button
-                        type="button"
-                        onClick={closeCamera}
-                        className={styles.cancelButton}
-                      >
-                        Cancel
-                      </button>
-
-                      <button
-                        type="button"
-                        onClick={capturePhoto}
-                        className={styles.captureButton}
-                      >
-                        📸 Take Photo
-                      </button>
-
-                    </div>
-
-                  </div>
-
-                </div>
-              )}
-
             </form>
+
+          </div>
+
+        </div>
+
+      )}
+
+      {/* =================================================
+          CAMERA MODAL
+      ================================================= */}
+
+      {showCamera && (
+
+        <div
+          className={
+            styles.cameraOverlay
+          }
+        >
+
+          <div
+            className={
+              styles.cameraModal
+            }
+          >
+
+            <div
+              className={
+                styles.cameraHeader
+              }
+            >
+
+              <h2>
+                Take Photo
+              </h2>
+
+              <button
+                type="button"
+                onClick={
+                  closeCamera
+                }
+                className={
+                  styles.closeButton
+                }
+              >
+                ×
+              </button>
+
+            </div>
+
+            <div
+              className={
+                styles.videoContainer
+              }
+            >
+
+              <video
+                ref={
+                  videoRef
+                }
+                autoPlay
+                playsInline
+                muted
+                className={
+                  styles.cameraVideo
+                }
+              />
+
+            </div>
+
+            <div
+              className={
+                styles.cameraActions
+              }
+            >
+
+              <button
+                type="button"
+                onClick={
+                  closeCamera
+                }
+                className={
+                  styles.cancelButton
+                }
+              >
+                Cancel
+              </button>
+
+              <button
+                type="button"
+                onClick={
+                  capturePhoto
+                }
+                className={
+                  styles.captureButton
+                }
+              >
+                📸 Take Photo
+              </button>
+
+            </div>
 
           </div>
 

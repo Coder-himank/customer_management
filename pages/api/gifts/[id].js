@@ -6,19 +6,28 @@ import Target from "@/server/models/Targets";
 import { requireAuth } from "@/lib/auth";
 
 export default async function handler(req, res) {
+  // =====================================================
+  // AUTHENTICATION
+  // =====================================================
 
-    const auth = await requireAuth(req, res);
+  const auth = await requireAuth(req, res);
 
-    if (!auth.authenticated) {
-        return res.status(401).json({
-            error: "Authentication required",
-        });
-    }
+  if (!auth.authenticated) {
+    return res.status(401).json({
+      success: false,
+      error: "Authentication required",
+    });
+  }
+
   await connectDB();
 
   const { id } = req.query;
 
   try {
+    // =====================================================
+    // FIND GIFT
+    // =====================================================
+
     const gift = await Gift.findById(id);
 
     if (!gift) {
@@ -27,6 +36,10 @@ export default async function handler(req, res) {
         message: "Gift not found",
       });
     }
+
+    // =====================================================
+    // GET GIFT
+    // =====================================================
 
     if (req.method === "GET") {
       const populatedGift = await Gift.findById(id)
@@ -39,13 +52,12 @@ export default async function handler(req, res) {
           "name targetType category productName targetQuantity unit startDate endDate status"
         )
         .lean();
-        
+
       return res.status(200).json({
         success: true,
         data: populatedGift,
       });
     }
-      
 
     // =====================================================
     // UPDATE GIFT
@@ -64,12 +76,14 @@ export default async function handler(req, res) {
         notes,
       } = req.body;
 
-      const finalCustomerId =
-        customerId || gift.customerId;
+      // -------------------------------------------------
+      // CUSTOMER
+      // -------------------------------------------------
 
-      // -----------------------------------------------
-      // VERIFY CUSTOMER
-      // -----------------------------------------------
+      const finalCustomerId =
+        customerId !== undefined
+          ? customerId
+          : gift.customerId;
 
       const customer = await Customer.findById(
         finalCustomerId
@@ -82,6 +96,10 @@ export default async function handler(req, res) {
         });
       }
 
+      // -------------------------------------------------
+      // BLOCKED CUSTOMER CHECK
+      // -------------------------------------------------
+
       if (customer.status === "blocked") {
         return res.status(400).json({
           success: false,
@@ -90,9 +108,14 @@ export default async function handler(req, res) {
         });
       }
 
-      // -----------------------------------------------
-      // VERIFY TARGET
-      // -----------------------------------------------
+      // -------------------------------------------------
+      // TARGET
+      // -------------------------------------------------
+      // Target is GENERAL.
+      //
+      // It does NOT belong to a particular customer.
+      // Therefore we only verify that the target exists.
+      // -------------------------------------------------
 
       const finalTargetId =
         targetId !== undefined
@@ -110,49 +133,77 @@ export default async function handler(req, res) {
             message: "Target not found",
           });
         }
-
-        if (
-          target.customerId.toString() !==
-          finalCustomerId.toString()
-        ) {
-          return res.status(400).json({
-            success: false,
-            message:
-              "Target does not belong to this customer",
-          });
-        }
       }
 
-      // -----------------------------------------------
-      // UPDATE
-      // -----------------------------------------------
+      // -------------------------------------------------
+      // UPDATE GIFT FIELDS
+      // -------------------------------------------------
 
       gift.customerId = finalCustomerId;
+
+      // Allows removing a target by sending:
+      // targetId: ""
+      //
+      // Also allows keeping the existing target when
+      // targetId is not supplied.
 
       gift.targetId =
         finalTargetId || null;
 
       if (name !== undefined) {
-        gift.name = name.trim();
+        gift.name = String(name).trim();
       }
 
       if (quantity !== undefined) {
-        gift.quantity = Number(quantity);
+        const parsedQuantity = Number(quantity);
+
+        if (
+          !Number.isFinite(parsedQuantity) ||
+          parsedQuantity < 1
+        ) {
+          return res.status(400).json({
+            success: false,
+            message: "Quantity must be at least 1",
+          });
+        }
+
+        gift.quantity = parsedQuantity;
       }
 
       if (estimatedValue !== undefined) {
-        gift.estimatedValue =
+        const parsedValue =
           Number(estimatedValue);
+
+        if (
+          !Number.isFinite(parsedValue) ||
+          parsedValue < 0
+        ) {
+          return res.status(400).json({
+            success: false,
+            message:
+              "Estimated value cannot be negative",
+          });
+        }
+
+        gift.estimatedValue = parsedValue;
       }
 
       if (receiverPhoto !== undefined) {
         gift.receiverPhoto =
-          receiverPhoto.trim();
+          String(receiverPhoto).trim();
       }
 
       if (givenDate !== undefined) {
-        gift.givenDate =
-          new Date(givenDate);
+        const parsedDate = new Date(givenDate);
+
+        if (Number.isNaN(parsedDate.getTime())) {
+          return res.status(400).json({
+            success: false,
+            message: "Invalid gift date",
+          });
+        }
+
+        gift.givenDate = parsedDate;
       }
 
       if (occasion !== undefined) {
@@ -160,19 +211,27 @@ export default async function handler(req, res) {
       }
 
       if (notes !== undefined) {
-        gift.notes = notes.trim();
+        gift.notes = String(notes).trim();
       }
+
+      // -------------------------------------------------
+      // SAVE GIFT
+      // -------------------------------------------------
 
       await gift.save();
 
-      // -----------------------------------------------
-      // UPDATE CUSTOMER
-      // -----------------------------------------------
+      // -------------------------------------------------
+      // UPDATE CUSTOMER LAST CONTACT
+      // -------------------------------------------------
 
       customer.lastContactDate =
         gift.givenDate;
 
       await customer.save();
+
+      // -------------------------------------------------
+      // RETURN UPDATED GIFT
+      // -------------------------------------------------
 
       const updatedGift =
         await Gift.findById(gift._id)
@@ -205,6 +264,10 @@ export default async function handler(req, res) {
         message: "Gift deleted successfully",
       });
     }
+
+    // =====================================================
+    // METHOD NOT ALLOWED
+    // =====================================================
 
     return res.status(405).json({
       success: false,
