@@ -67,7 +67,7 @@ const purchaseSchema = new mongoose.Schema(
             type: String,
             trim: true,
         },
-        logs: [{type:string, default: "Purchase record created"}]
+        logs: [{type:String, default: "Purchase record created"}]
     },
     {
         timestamps: true,

@@ -253,7 +253,7 @@ const CustomerSchema = new mongoose.Schema(
         },
 
         
-    logs: [{type:string, default: "Customer record created"}]
+    logs: [{type:String, default: "Customer record created"}]
     },
 
     {
