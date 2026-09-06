@@ -1,374 +1,716 @@
+/* =========================================================
+   ANALYTICS
+========================================================= */
+
 .analyticsGrid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 18px;
-    margin-bottom: 30px;
+    margin-bottom: 28px;
 }
 
 .analyticsCard {
+    position: relative;
+
     display: flex;
     align-items: center;
     gap: 16px;
 
-    padding: 22px;
+    min-height: 108px;
+    padding: 20px;
 
     background: #ffffff;
 
-    border: 1px solid #e8e8e8;
-
-    border-radius: 16px;
-
-    transition:
-        transform 0.2s ease,
-        box-shadow 0.2s ease;
-}
-
-.analyticsCard:hover {
-    transform: translateY(-2px);
-
-    box-shadow:
-        0 10px 30px rgba(0, 0, 0, 0.06);
-}
-
-.analyticsIcon {
-    width: 48px;
-    height: 48px;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    border-radius: 12px;
-
-    background: #f5f5f5;
-
-    font-size: 22px;
-
-    flex-shrink: 0;
-}
-
-.analyticsContent {
-    display: flex;
-    flex-direction: column;
-    gap: 3px;
-}
-
-.analyticsContent span {
-    font-size: 13px;
-    color: #777;
-}
-
-.analyticsContent strong {
-    font-size: 24px;
-    line-height: 1.2;
-}
-
-.analyticsContent small {
-    font-size: 12px;
-    color: #999;
-}
-
-
-@media (max-width: 1000px) {
-
-    .analyticsGrid {
-        grid-template-columns: repeat(2, 1fr);
-    }
-
-}
-
-
-@media (max-width: 600px) {
-
-    .analyticsGrid {
-        grid-template-columns: 1fr;
-    }
-
-}
-
-.customerList {
-    width: 100%;
-    max-width: 100%;
-    min-height: 400px;
-    padding: 12px;
+    border: 1px solid #e8ece9;
     border-radius: 18px;
-    background: #ffffff;
-    box-shadow: 0 8px 35px rgba(0, 0, 0, 0.06);
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    overflow: hidden;
-    
-    font-family: Poppins, sans-serif;
-}
-.resultCount{
-    width: 100%;
-    font-family: Arial, Helvetica, sans-serif;
-    font-size: 12px;
-    font-weight: 600;
-    text-align: center;
-    color: #ccc;
-}
-.filterBox{
-    width: 100%;
-    padding: 10px;
-    display: grid;
-    grid-template-columns: 1fr 0.3fr;
-    gap: 10px;
-}
-
-.filterBox input,
-.filterBox select{
-
-        
-    height: 42px;
-    padding: 0 12px;
-    width: 100%;
-
-    border: 1px solid #e4e7e4;
-
-    outline: none;
-
-    border-radius: 10px;
-
-    background: #fafbfa;
-
-    color: #222;
-
-    font-family: inherit;
-
-    font-size: 12px;
-
-    transition:
-        border-color 0.2s,
-        box-shadow 0.2s,
-        background 0.2s;
-}
-
-
-.filterBox input:focus,
-.filterBox select:focus {
-    border-color: #136132;
-
-    background: white;
 
     box-shadow:
-        0 0 0 3px rgba(19, 97, 50, 0.08);
-}
-
-.filterBox input::placeholder {
-    color: #b5b8b5;
-}
-
-/* Header */
-
-.customerListHeader {
-    display: grid;
-    grid-template-columns: 2fr 1.3fr 1.5fr 1.2fr 1fr;
-    align-items: center;
-    padding: 12px 20px;
-    color: #000000;
-    font-family: Poppins, sans-serif;
-    font-size: 12px;
-    font-weight: 900;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    position: sticky;
-    top: 0;
-    /* background-color: #ccc; */
-
-    border-bottom: 3px solid #ccc;
-}
-
-/* Customer row */
-
-.customerCard {
-    width: 100%;
-    min-height: 72px;
-    padding: 12px 20px;
-
-    display: grid;
-    grid-template-columns: 2fr 1.3fr 1.5fr 1.2fr 1fr;
-    align-items: center;
-
-    border: 1px solid #eeeeee;
-    border-radius: 12px;
-
-    background: #fff;
+        0 2px 8px rgba(0, 0, 0, 0.025),
+        0 12px 35px rgba(0, 0, 0, 0.035);
 
     transition:
         transform 0.2s ease,
         box-shadow 0.2s ease,
         border-color 0.2s ease;
 
+    overflow: hidden;
+}
+
+.analyticsCard::after {
+    content: "";
+
+    position: absolute;
+
+    right: -25px;
+    top: -35px;
+
+    width: 90px;
+    height: 90px;
+
+    border-radius: 50%;
+
+    background: rgba(19, 97, 50, 0.035);
+
+    pointer-events: none;
+}
+
+.analyticsCard:hover {
+    transform: translateY(-3px);
+
+    border-color: #dce8df;
+
+    box-shadow:
+        0 5px 12px rgba(0, 0, 0, 0.035),
+        0 18px 45px rgba(0, 0, 0, 0.07);
+}
+
+
+/* Icon */
+
+.analyticsIcon {
+    position: relative;
+    z-index: 1;
+
+    width: 52px;
+    height: 52px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    flex-shrink: 0;
+
+    border-radius: 15px;
+
+    background: #edf7ef;
+
+    color: #136132;
+
+    font-size: 21px;
+
+    box-shadow:
+        inset 0 0 0 1px rgba(19, 97, 50, 0.06);
+}
+
+
+/* Content */
+
+.analyticsContent {
+    position: relative;
+    z-index: 1;
+
+    display: flex;
+    flex-direction: column;
+
+    min-width: 0;
+
+    gap: 4px;
+}
+
+.analyticsContent span {
+    color: #858b87;
+
+    font-size: 12px;
+    font-weight: 500;
+
+    letter-spacing: 0.01em;
+}
+
+.analyticsContent strong {
+    color: #151816;
+
+    font-size: 25px;
+    line-height: 1.15;
+    font-weight: 700;
+
+    letter-spacing: -0.03em;
+}
+
+.analyticsContent small {
+    color: #a1a6a3;
+
+    font-size: 11px;
+    line-height: 1.3;
+}
+
+
+/* =========================================================
+   CUSTOMER LIST CONTAINER
+========================================================= */
+
+.customerList {
+    width: 100%;
+    max-width: 100%;
+
+    min-height: 400px;
+
+    padding: 16px;
+
+    background: #ffffff;
+
+    border: 1px solid #e9edea;
+
+    border-radius: 20px;
+
+    box-shadow:
+        0 3px 10px rgba(0, 0, 0, 0.025),
+        0 15px 40px rgba(0, 0, 0, 0.04);
+
+    display: flex;
+    flex-direction: column;
+
+    gap: 8px;
+
+    overflow: hidden;
+
+    font-family: Poppins, sans-serif;
+}
+
+
+/* =========================================================
+   FILTER AREA
+========================================================= */
+
+.filterBox {
+    width: 100%;
+
+    padding: 4px 4px 12px;
+
+    display: grid;
+
+    grid-template-columns: minmax(0, 1fr) 220px;
+
+    gap: 10px;
+}
+
+.filterBox input,
+.filterBox select {
+    width: 100%;
+    height: 44px;
+
+    padding: 0 14px;
+
+    border: 1px solid #e3e8e4;
+
+    outline: none;
+
+    border-radius: 11px;
+
+    background: #fafcfb;
+
+    color: #252825;
+
+    font-family: inherit;
+
+    font-size: 12px;
+
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease,
+        background 0.2s ease;
+}
+
+.filterBox input:hover,
+.filterBox select:hover {
+    border-color: #d4ddd7;
+}
+
+.filterBox input:focus,
+.filterBox select:focus {
+    border-color: #136132;
+
+    background: #ffffff;
+
+    box-shadow:
+        0 0 0 3px rgba(19, 97, 50, 0.08);
+}
+
+.filterBox input::placeholder {
+    color: #aeb5b0;
+}
+
+
+/* =========================================================
+   RESULT COUNT
+========================================================= */
+
+.resultCount {
+    width: 100%;
+
+    padding: 3px 4px 8px;
+
+    color: #9ca29e;
+
+    font-family: Poppins, sans-serif;
+
+    font-size: 11px;
+
+    font-weight: 500;
+
+    text-align: left;
+}
+
+
+/* =========================================================
+   DESKTOP HEADER
+========================================================= */
+
+.customerListHeader {
+    display: grid;
+
+    grid-template-columns:
+        2.2fr
+        1.3fr
+        1.5fr
+        1.2fr
+        1fr;
+
+    align-items: center;
+
+    min-height: 42px;
+
+    padding: 0 18px;
+
+    color: #8a918c;
+
+    font-family: Poppins, sans-serif;
+
+    font-size: 10px;
+
+    font-weight: 600;
+
+    text-transform: uppercase;
+
+    letter-spacing: 0.08em;
+
+    border-bottom: 1px solid #edf0ee;
+}
+
+
+/* =========================================================
+   CUSTOMER ROW
+========================================================= */
+
+.customerCard {
+    width: 100%;
+
+    min-height: 72px;
+
+    padding: 10px 18px;
+
+    display: grid;
+
+    grid-template-columns:
+        2.2fr
+        1.3fr
+        1.5fr
+        1.2fr
+        1fr;
+
+    align-items: center;
+
+    border: 1px solid transparent;
+
+    border-radius: 13px;
+
+    background: #ffffff;
+
+    transition:
+        transform 0.18s ease,
+        box-shadow 0.18s ease,
+        background 0.18s ease,
+        border-color 0.18s ease;
+
     font-family: Poppins, sans-serif;
 }
 
 .customerCard:hover {
-    transform: translateY(-2px);
-    border-color: #d8e8dc;
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.07);
+    transform: translateY(-1px);
+
+    background: #fcfefd;
+
+    border-color: #e2ebe5;
+
+    box-shadow:
+        0 6px 20px rgba(0, 0, 0, 0.045);
 }
 
-/* Customer identity */
+
+/* =========================================================
+   CUSTOMER IDENTITY
+========================================================= */
 
 .customerIdentity {
     display: flex;
+
     align-items: center;
+
     gap: 12px;
+
     min-width: 0;
 }
 
+
+/* Avatar */
+
 .customerImage {
+    width: 46px;
+    height: 46px;
+
     flex-shrink: 0;
 
-    width: 48px;
-    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 
-    border-radius: 50%;
     overflow: hidden;
 
-    border: 2px solid #136132;
-    background: #eef6f0;
-    box-shadow: 0 2px 20px -10px black;
+    border-radius: 14px;
+
+    border: 1px solid #dfeae2;
+
+    background: #f1f7f3;
+
+    box-shadow:
+        0 2px 8px rgba(0, 0, 0, 0.04);
 }
 
 .customerImage img {
     width: 100%;
     height: 100%;
+
     object-fit: cover;
 }
 
+
+/* Name */
+
 .customerName {
     min-width: 0;
+
+    display: flex;
+    flex-direction: column;
+
+    gap: 3px;
 }
 
 .customerName h3 {
     margin: 0;
 
-    color: #202020;
-    font-size: 14px;
+    color: #1c211e;
+
+    font-size: 13px;
+
     font-weight: 600;
 
+    line-height: 1.3;
+
     white-space: nowrap;
+
     overflow: hidden;
+
     text-overflow: ellipsis;
 }
 
 .customerName span {
     display: block;
-    margin-top: 2px;
 
-    color: #999;
-    font-size: 11px;
+    color: #969d99;
+
+    font-size: 10px;
+
+    line-height: 1.2;
+
+    white-space: nowrap;
+
+    overflow: hidden;
+
+    text-overflow: ellipsis;
 }
 
-/* Normal information */
+
+/* =========================================================
+   NORMAL INFORMATION
+========================================================= */
 
 .customerDetail {
     min-width: 0;
+
+    padding-right: 12px;
 }
 
 .customerDetail label {
     display: none;
 
-    color: #999;
+    color: #9ca39e;
+
     font-size: 10px;
+
+    font-weight: 500;
+
     margin-bottom: 3px;
 }
 
 .customerDetail p {
     margin: 0;
 
-    color: #444;
-    font-size: 12px;
+    color: #555d58;
+
+    font-size: 11px;
+
+    font-weight: 500;
 
     white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
 
-    opacity: 0.8;
-        
+    overflow: hidden;
+
+    text-overflow: ellipsis;
 }
 
-/* Purchase */
+
+/* =========================================================
+   PURCHASE BADGE
+========================================================= */
 
 .purchaseBadge {
     width: fit-content;
 
-    padding: 5px 10px;
+    min-width: 70px;
 
-    border-radius: 20px;
+    padding: 6px 10px;
 
-    background: #edf7ef;
+    display: inline-flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    border-radius: 999px;
+
+    background: #eef7f0;
+
+    border: 1px solid #dcecdf;
+
     color: #136132;
 
-    font-size: 11px;
+    font-size: 10px;
+
     font-weight: 600;
+
+    white-space: nowrap;
 }
 
-/* Date */
+
+/* =========================================================
+   DATE
+========================================================= */
 
 .customerDate {
-    color: #777;
-    font-size: 11px;
+    color: #858c87;
+
+    font-size: 10px;
+
+    font-weight: 500;
+
+    white-space: nowrap;
 }
 
 
-.noCustomers{
-    width: 300px;
-    height: 100%;
-    font-family: Poppins , sans-serif;
+/* =========================================================
+   EMPTY STATE
+========================================================= */
+
+.noCustomers {
+    width: min(340px, 90%);
+
+    min-height: 260px;
+
+    margin: 35px auto;
+
+    padding: 30px 20px;
+
     display: flex;
+
     flex-direction: column;
+
     align-items: center;
+
     justify-content: center;
-    gap: 9px;
-    height: 300px;
-    border-radius: 8px;
-    background-color: #efefefbb;
-    margin: 30px auto;
+
+    gap: 10px;
+
+    border: 1px dashed #dfe6e1;
+
+    border-radius: 18px;
+
+    background: #fafcfb;
+
+    color: #777;
+
+    font-family: Poppins, sans-serif;
+
+    text-align: center;
 }
 
-.noCustomers a{
-    padding: 10px;
-    background-color: #136132;
-    border-radius: 8px;
-    color: white;
+.noCustomers a {
+    margin-top: 5px;
+
+    padding: 9px 16px;
+
+    border-radius: 9px;
+
+    background: #136132;
+
+    color: #ffffff;
+
     text-decoration: none;
-    font-weight: bold;
-}
-/* Mobile */
 
-@media (max-width: 900px) {
+    font-size: 11px;
+
+    font-weight: 600;
+
+    transition:
+        background 0.2s ease,
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.noCustomers a:hover {
+    background: #0e5128;
+
+    transform: translateY(-1px);
+
+    box-shadow:
+        0 5px 15px rgba(19, 97, 50, 0.2);
+}
+
+
+/* =========================================================
+   TABLET
+========================================================= */
+
+@media (max-width: 1100px) {
+
+    .analyticsGrid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .customerListHeader,
+    .customerCard {
+        grid-template-columns:
+            2fr
+            1.2fr
+            1.3fr
+            1fr
+            0.9fr;
+    }
+}
+
+
+/* =========================================================
+   TABLET / SMALL LAPTOP
+========================================================= */
+
+@media (max-width: 800px) {
+
+    .analyticsGrid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+
+        gap: 12px;
+    }
+
+    .analyticsCard {
+        min-height: 96px;
+
+        padding: 16px;
+
+        border-radius: 15px;
+    }
+
+    .analyticsIcon {
+        width: 45px;
+        height: 45px;
+
+        border-radius: 12px;
+
+        font-size: 18px;
+    }
+
+    .analyticsContent strong {
+        font-size: 21px;
+    }
+
+    .filterBox {
+        grid-template-columns: 1fr;
+    }
+
+    .customerList {
+        padding: 12px;
+
+        border-radius: 17px;
+    }
 
     .customerListHeader {
         display: none;
     }
 
     .customerCard {
+        display: grid;
+
         grid-template-columns: 1fr;
-        gap: 14px;
-        padding: 16px;
+
+        gap: 0;
+
+        min-height: auto;
+
+        padding: 15px;
+
+        border: 1px solid #e9eeeb;
+
+        border-radius: 14px;
+
+        background: #ffffff;
+    }
+
+    .customerCard:hover {
+        transform: none;
     }
 
     .customerIdentity {
-        padding-bottom: 12px;
-        border-bottom: 1px solid #eeeeee;
+        padding-bottom: 13px;
+
+        border-bottom: 1px solid #edf0ee;
     }
 
     .customerDetail {
         display: flex;
+
         align-items: center;
+
         justify-content: space-between;
-        gap: 20px;
+
+        gap: 15px;
+
+        padding: 10px 0;
+
+        border-bottom: 1px solid #f1f3f2;
+    }
+
+    .customerDetail:last-child {
+        border-bottom: none;
     }
 
     .customerDetail label {
         display: block;
+
+        margin: 0;
+
+        flex-shrink: 0;
     }
 
     .customerDetail p {
+        max-width: 60%;
+
         text-align: right;
     }
 
@@ -377,28 +719,149 @@
     }
 }
 
-@media (max-width: 500px) {
 
-    .customerList {
-        padding: 8px;
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 600px) {
+
+    .analyticsGrid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+
+        gap: 9px;
+
+        margin-bottom: 18px;
+    }
+
+    .analyticsCard {
+        min-height: 100px;
+
+        padding: 13px;
+
+        flex-direction: column;
+
+        align-items: flex-start;
+
+        justify-content: center;
+
+        gap: 9px;
+
         border-radius: 14px;
     }
 
+    .analyticsIcon {
+        width: 38px;
+        height: 38px;
+
+        border-radius: 10px;
+
+        font-size: 16px;
+    }
+
+    .analyticsContent {
+        gap: 2px;
+    }
+
+    .analyticsContent span {
+        font-size: 10px;
+    }
+
+    .analyticsContent strong {
+        font-size: 19px;
+    }
+
+    .analyticsContent small {
+        font-size: 9px;
+    }
+
+    .customerList {
+        padding: 8px;
+
+        border-radius: 15px;
+    }
+
+    .filterBox {
+        padding: 3px 2px 8px;
+
+        gap: 8px;
+    }
+
+    .filterBox input,
+    .filterBox select {
+        height: 41px;
+
+        font-size: 11px;
+    }
+
+    .resultCount {
+        padding: 3px 2px 7px;
+
+        font-size: 10px;
+    }
+
     .customerCard {
-        padding: 14px;
+        padding: 13px;
+
+        border-radius: 12px;
     }
 
     .customerImage {
-        width: 44px;
-        height: 44px;
+        width: 42px;
+        height: 42px;
+
+        border-radius: 12px;
     }
 
     .customerName h3 {
-        font-size: 13px;
+        font-size: 12px;
+    }
+
+    .customerName span {
+        font-size: 9px;
     }
 
     .customerDetail p {
-        font-size: 11px;
-        
+        font-size: 10px;
+    }
+
+    .purchaseBadge {
+        min-width: auto;
+
+        padding: 5px 8px;
+
+        font-size: 9px;
+    }
+
+    .customerDate {
+        font-size: 9px;
+    }
+}
+
+
+/* =========================================================
+   VERY SMALL PHONES
+========================================================= */
+
+@media (max-width: 380px) {
+
+    .analyticsGrid {
+        gap: 7px;
+    }
+
+    .analyticsCard {
+        padding: 11px;
+    }
+
+    .analyticsContent strong {
+        font-size: 17px;
+    }
+
+    .customerDetail {
+        gap: 8px;
+    }
+
+    .customerDetail p {
+        max-width: 55%;
     }
 }

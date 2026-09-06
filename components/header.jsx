@@ -41,7 +41,7 @@ export default function Header() {
                         Dashboard
                     </Link>
 
-                    <Link href="/customer/newCustomer">
+                    <Link href="/customer/details">
                         Add Customer
                     </Link>
 
@@ -97,7 +97,7 @@ export default function Header() {
                     </Link>
 
                     <Link
-                        href="/customer/newCustomer"
+                        href="/customer/details"
                         onClick={closeMenu}
                     >
                         Add Customer

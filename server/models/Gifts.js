@@ -95,6 +95,8 @@ const giftSchema = new mongoose.Schema(
       trim: true,
       default: "",
     },
+
+    logs: [{type:string, default: "Gift record created"}]
   },
   {
     timestamps: true,

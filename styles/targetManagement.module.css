@@ -539,7 +539,15 @@
         align-items: flex-start;
     }
 
-    .kpiGrid,
+    .kpiGrid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .createButton{
+        width: 100%;
+        justify-content: center;
+    }
+
     .targetGrid {
         grid-template-columns: 1fr;
     }

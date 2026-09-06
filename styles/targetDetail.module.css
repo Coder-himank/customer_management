@@ -322,7 +322,10 @@
         font-size: 30px;
     }
 
-    .kpiGrid,
+    .kpiGrid{
+        gap: 10px;
+        grid-template-columns: 1fr 1fr;
+    }
     .giftGrid {
         grid-template-columns: 1fr;
     }

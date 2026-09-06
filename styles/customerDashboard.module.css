@@ -251,3 +251,14 @@
     text-align: right;
     font-size: 13px;
 }
+
+.editButton {
+    margin-top: 15px;
+    padding: 10px 20px;
+    background-color: #136132;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 10px;
+}

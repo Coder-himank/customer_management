@@ -481,10 +481,7 @@
         width: 92%;
     }
 
-    .heroCard {
-        flex-direction: column;
-        align-items: flex-start;
-    }
+
 
     .photoWrapper {
         width: 150px;
@@ -509,7 +506,7 @@
 }
 
 
-@media (max-width: 500px) {
+@media (max-width: 600px) {
 
     .heroCard {
         padding: 20px;
@@ -519,12 +516,32 @@
         padding: 18px;
     }
 
+    .heroInfo h2 {
+        font-size: 22px;
+    }
+    .heroDate span {
+        display: none;
+        font-size: 13px;
+    }
+
+    .heroDate strong {
+        font-size: 14px;
+    }
+    .badge {
+        font-size: 10px;
+        padding: 5px 10px;
+    }
+
     .heroStats {
         gap: 15px;
     }
 
+    .stat span {
+        font-size: 8px;
+    }
+
     .stat strong {
-        font-size: 18px;
+        font-size: 16px;
     }
 
     .detailsGrid {

@@ -138,7 +138,7 @@ export default function PurchaseDetails() {
                         type="button"
                         className={styles.backButton}
                         onClick={() =>
-                            router.push("/purchases")
+                            router.push("/dashboard/purchases")
                         }
                     >
                         ← Back to Purchases
@@ -178,7 +178,7 @@ export default function PurchaseDetails() {
                     type="button"
                     className={styles.back}
                     onClick={() =>
-                        router.push("/purchases")
+                        router.push("/dashboard/purchases")
                     }
                 >
                     ← Back

@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import styles from "@/styles/PurchaseManagement.module.css";
+import { useRouter } from "next/router";
 
 export default function PurchaseManagement() {
     const [purchases, setPurchases] = useState([]);
@@ -14,6 +15,7 @@ export default function PurchaseManagement() {
     const [customerSearch, setCustomerSearch] = useState("");
 
     const [filteredPurchases, setFilteredPurchases] = useState([]);
+    const router = useRouter();
 
     const [form, setForm] = useState({
         customerId: "",
@@ -337,7 +339,7 @@ export default function PurchaseManagement() {
 
                             {filteredPurchases.map((purchase) => (
 
-                                <tr key={purchase._id}>
+                                <tr key={purchase._id} >
 
                                     <td>
                                         <strong>
@@ -411,6 +413,14 @@ export default function PurchaseManagement() {
                                                 }
                                             >
                                                 Delete
+                                            </button>
+                                            <button
+                                                className={styles.visit}
+                                                onClick={() =>
+                                                    router.push(`/dashboard/purchases/${purchase._id}`)
+                                                }
+                                            >
+                                                Visit
                                             </button>
 
                                         </div>

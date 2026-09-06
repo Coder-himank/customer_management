@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import axios from "axios";
 import styles from "@/styles/GiftManagement.module.css";
-
+import { useRouter } from "next/router";
 export default function GiftsPage() {
   const [gifts, setGifts] = useState([]);
   const [customers, setCustomers] = useState([]);
@@ -19,6 +19,9 @@ export default function GiftsPage() {
   const [showCamera, setShowCamera] = useState(false);
   const [cameraStream, setCameraStream] = useState(null);
   const [cameraLoading, setCameraLoading] = useState(false);
+
+
+  const router = useRouter();
 
   const videoRef = useRef(null);
 
@@ -849,12 +852,19 @@ export default function GiftsPage() {
                       >
                         Delete
                       </button>
+                      <button
+                        className={styles.visitButton}
+                        onClick={() => router.push(`/dashboard/gifts/${gift._id}`)}
+                      >
+                        Visit
+                      </button>
 
                     </div>
 
                   </td>
 
                 </tr>
+
 
               ))}
 

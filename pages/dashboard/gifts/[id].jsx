@@ -133,7 +133,7 @@ export default function GiftDetails() {
                         type="button"
                         className={styles.backButton}
                         onClick={() =>
-                            router.push("/gifts")
+                            router.push("/dashboard/gifts")
                         }
                     >
                         ← Back to Gifts
@@ -159,7 +159,7 @@ export default function GiftDetails() {
                     type="button"
                     className={styles.back}
                     onClick={() =>
-                        router.push("/gifts")
+                        router.push("/dashboard/gifts")
                     }
                 >
                     ← Back
@@ -228,7 +228,7 @@ export default function GiftDetails() {
                         <h2>{gift.name}</h2>
 
                         <p className={styles.heroDate}>
-                            Given on{" "}
+                            <span>Given on{" "}</span>
                             <strong>
                                 {formatDate(
                                     gift.givenDate
@@ -248,7 +248,7 @@ export default function GiftDetails() {
                             <div className={styles.statDivider}></div>
 
                             <div className={styles.stat}>
-                                <span>Estimated Value</span>
+                                <span>Value</span>
                                 <strong>
                                     ₹
                                     {Number(

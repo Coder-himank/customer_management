@@ -67,10 +67,12 @@ const purchaseSchema = new mongoose.Schema(
             type: String,
             trim: true,
         },
+        logs: [{type:string, default: "Purchase record created"}]
     },
     {
         timestamps: true,
     }
+
 );
 
 purchaseSchema.index({

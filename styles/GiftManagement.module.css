@@ -222,14 +222,15 @@
 }
 
 .editButton,
-.deleteButton {
+.deleteButton,
+.visitButton {
   border: none;
   border-radius: 7px;
 
   padding: 7px 10px;
 
   font-size: 12px;
-  font-weight: 600;
+  /* font-weight: 600; */
 
   cursor: pointer;
 }
@@ -762,7 +763,7 @@
 
 }
 
-@media (max-width: 480px) {
+@media (max-width: 600px) {
 
   .page {
     padding: 12px;

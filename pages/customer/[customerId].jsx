@@ -235,6 +235,10 @@ const CustomerDashboard = () => {
                         </small>
                     )}
 
+                    <button className={styles.editButton} onClick={() => router.push(`/customer/details?customerId=${customer._id}`)}>
+                        Edit Customer
+                    </button>
+
                 </div>
 
 

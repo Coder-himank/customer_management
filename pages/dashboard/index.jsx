@@ -805,7 +805,7 @@ export const dashboard = () => {
                             or filter.
                         </p>
 
-                        <Link href={"/customer/newCustomer"}>+Add Customers</Link>
+                        <Link href={"/customer/details"}>+Add Customers</Link>
 
                     </div>
 
